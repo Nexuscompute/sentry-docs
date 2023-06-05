@@ -22,7 +22,7 @@
     "@sentry/webpack-plugin": "2.0.0-alpha.6",
     "@types/dompurify": "^3.0.2",
     "@types/node": "^12",
-    "@types/react-helmet": "^6.1.0",
+    "@types/react-helmet": "^6.1.6",
     "@types/react-select": "^3.0.19",
     "bootstrap": "4.6.1",
     "crypto-browserify": "^3.12.0",
