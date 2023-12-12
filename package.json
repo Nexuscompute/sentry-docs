@@ -67,7 +67,7 @@
     "search-insights": "^2.2.3",
     "stream-browserify": "^3.0.0",
     "ts-node": "^10.9.1",
-    "typescript": "^5.0.4"
+    "typescript": "^5.3.2"
   },
   "resolutions": {
     "@types/react": "17.0.39",
