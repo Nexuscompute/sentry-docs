@@ -60,7 +60,7 @@
     "next": "14.0.2",
     "next-auth": "^4.24.5",
     "next-mdx-remote": "^4.4.1",
-    "nextjs-toploader": "^1.6.6",
+    "nextjs-toploader": "^1.6.12",
     "platformicons": "^5.10.4",
     "prism-sentry": "^1.0.2",
     "prismjs": "^1.27.0",
