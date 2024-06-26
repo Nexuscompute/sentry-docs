@@ -10505,10 +10505,10 @@ synckit@^0.8.6:
     "@pkgr/core" "^0.1.0"
     tslib "^2.6.2"
 
-tailwindcss-scoped-preflight@^3.0.4:
-  version "3.2.3"
-  resolved "https://registry.yarnpkg.com/tailwindcss-scoped-preflight/-/tailwindcss-scoped-preflight-3.2.3.tgz#7c77403728ee988a348ff5912c9baa689284450d"
-  integrity sha512-L7fi0mkRMcg1MbmkKtJ3no0YGFHEYCePtPdpztzhppph+A3bryzYdnkCKYc6/wzQqmegkFqLgobRWHHPh05qTw==
+tailwindcss-scoped-preflight@^3.2.6:
+  version "3.2.8"
+  resolved "https://registry.yarnpkg.com/tailwindcss-scoped-preflight/-/tailwindcss-scoped-preflight-3.2.8.tgz#45afd670c51de87e92c9a39a9eb42c1a7e09e2d8"
+  integrity sha512-Ktb/FC0K7LgqXAhdbj5aHlvuvnSO7Lz9gtSSbnGBfu5F1a8CssG0vWsOVi8ISFA5myvrFp1z3TvoCou4Ona42g==
 
 tailwindcss@^3.4.1:
   version "3.4.3"
