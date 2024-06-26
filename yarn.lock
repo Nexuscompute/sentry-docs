@@ -1674,10 +1674,10 @@
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.8.tgz#6b79032e760a0899cd4204710beede972a3a185f"
   integrity sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==
 
-"@prettier/plugin-xml@^3.3.1":
-  version "3.3.1"
-  resolved "https://registry.yarnpkg.com/@prettier/plugin-xml/-/plugin-xml-3.3.1.tgz#b89fcc95b909128fa2e0691f68b34ad25052971b"
-  integrity sha512-kllNJk6n2pXJjGWdj+HAr1GhOoOTrlmeWkDYCGBzkyZS2l0K6h2gsUQcVif2cNqAE1MNC+nUrzN6QwEsCukPnQ==
+"@prettier/plugin-xml@^3.4.1":
+  version "3.4.1"
+  resolved "https://registry.yarnpkg.com/@prettier/plugin-xml/-/plugin-xml-3.4.1.tgz#6c3be1184871a983d08c9f81c8a8796f62a19568"
+  integrity sha512-Uf/6/+9ez6z/IvZErgobZ2G9n1ybxF5BhCd7eMcKqfoWuOzzNUxBipNo3QAP8kRC1VD18TIo84no7LhqtyDcTg==
   dependencies:
     "@xml-tools/parser" "^1.0.11"
 
