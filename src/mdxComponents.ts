@@ -1,9 +1,13 @@
 import {Alert, Note} from './components/alert';
+import {Arcade} from './components/arcade';
 import {Break} from './components/break';
 import {CliChecksumTable} from './components/cliChecksumTable';
 import {CodeBlock} from './components/codeBlock';
 import {CodeTabs} from './components/codeTabs';
+import {CommunitySupportedPlatforms} from './components/communitySupportedPlatforms';
 import {ConfigKey} from './components/configKey';
+import {ConfigValue} from './components/configValue';
+import {CreateGitHubAppForm} from './components/createGitHubAppForm';
 import {DefinitionList} from './components/definitionList';
 import DocImage from './components/docImage';
 import {Expandable} from './components/expandable';
@@ -17,6 +21,7 @@ import {PageGrid} from './components/pageGrid';
 import {ParamTable} from './components/paramTable';
 import {PiiFields} from './components/piiFields';
 import {PlatformCategorySection} from './components/platformCategorySection';
+import {PlatformFilter} from './components/platformFilter';
 import {PlatformGrid} from './components/platformGrid';
 import {PlatformIdentifier} from './components/platformIdentifier';
 import {PlatformLink} from './components/platformLink';
@@ -36,11 +41,16 @@ export function mdxComponents(
 ) {
   return {
     Alert,
+    Arcade,
     Break,
     CliChecksumTable,
+    CommunitySupportedPlatforms,
+    PlatformFilter,
     CodeBlock,
     CodeTabs,
     ConfigKey,
+    CreateGitHubAppForm,
+    ConfigValue,
     DefinitionList,
     Expandable,
     GuideGrid,

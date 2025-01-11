@@ -1,5 +1,6 @@
 ---
 title: Frontend Design Tenets
+sidebar_order: 20
 ---
 
 <Alert level="info">
@@ -23,7 +24,7 @@ Why disable (grey out)?
 </Alert>
 
 ![Disabled Default Role dropdown](../img/frontendTenetDisable.png)
-  
+
 In this example, the current user does not have access to modify the "Default Role", but the presence of the setting and the current value is still visible.
 
 
@@ -57,7 +58,7 @@ Why minimize content refreshes?
 Spinners should be used carefully. Having multiple spinners on the page is distracting. Reserve spinners for primary content that has an unknown height. Favor the usage of sized placeholder elements where the height of content is known, or the content is secondary to the main goal of the page.
 
 Why use placeholders?
-- Less layout shifts / render thrash (see video below)
+- Less layout shifts / render thrash
 - Better perceived performance
 - Avoids having multiple loading spinner animations at once, which looks ugly
 

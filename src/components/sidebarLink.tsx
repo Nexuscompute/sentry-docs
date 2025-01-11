@@ -3,6 +3,8 @@
 import {Children, useState} from 'react';
 import styled from '@emotion/styled';
 
+import {getUnversionedPath} from 'sentry-docs/versioning';
+
 import {SmartLink} from './smartLink';
 
 interface SidebarLinkProps {
@@ -35,18 +37,18 @@ export function SidebarLink({
   collapsed = null,
   className = '',
 }: SidebarLinkProps) {
-  const isActive = path.indexOf(to) === 0;
+  const isActive = path?.indexOf(to) === 0;
   const enableSubtree = isActive || collapsed === false;
   const hasSubtree = Children.count(children) > 0;
 
   const [showSubtree, setShowSubtree] = useState(enableSubtree);
 
   return (
-    <li className={`toc-item ${className}`} data-sidebar-branch>
+    <li className={`toc-item ${className}`} data-sidebar-branch data-path={path}>
       <SidebarNavItem
         to={to}
         data-sidebar-link
-        isActive={to === path}
+        isActive={to === getUnversionedPath(path)}
         onClick={() => {
           // Allow toggling the sidebar subtree only if the item is selected
           if (path === to) {

@@ -113,13 +113,13 @@ Configures the sample rate for error events, in the range of `0.0` to `1.0`. The
 
 <ConfigKey name="max-breadcrumbs">
 
-This variable controls the total amount of breadcrumbs that should be captured. This defaults to `100`, but you can set this to any number. However, you should be aware that Sentry has a [maximum payload size](https://develop.sentry.dev/sdk/envelopes/#size-limits) and any events exceeding that payload size will be dropped.
+This variable controls the total amount of breadcrumbs that should be captured. This defaults to `100`, but you can set this to any number. However, you should be aware that Sentry has a [maximum payload size](https://develop.sentry.dev/sdk/data-model/envelopes/#size-limits) and any events exceeding that payload size will be dropped.
 
 </ConfigKey>
 
 <ConfigKey name="max-cache-items">
 
-The maximum number of [envelopes](https://develop.sentry.dev/sdk/envelopes/) to keep in cache. The SDKs use envelopes to send data, such as events, attachments, user feedback, and sessions to sentry.io. An envelope can contain multiple items, such as an event with a session and two attachments. Depending on the usage of the SDK, the size of an envelope can differ. If the number of envelopes in the local cache exceeds `max-cache-items`, the SDK deletes the oldest envelope and migrates the sessions to the next envelope to maintain the integrity of your release health stats. The default is `30`.
+The maximum number of [envelopes](https://develop.sentry.dev/sdk/data-model/envelopes/) to keep in cache. The SDKs use envelopes to send data, such as events, attachments, user feedback, and sessions to sentry.io. An envelope can contain multiple items, such as an event with a session and two attachments. Depending on the usage of the SDK, the size of an envelope can differ. If the number of envelopes in the local cache exceeds `max-cache-items`, the SDK deletes the oldest envelope and migrates the sessions to the next envelope to maintain the integrity of your release health stats. The default is `30`.
 
 </ConfigKey>
 
@@ -175,7 +175,7 @@ This option can be overridden using <PlatformIdentifier name="in-app-include" />
 
 This parameter controls whether integrations should capture HTTP request bodies. It can be set to one of the following values:
 
-- `never`: Request bodies are never sent.
+- `none`: Request bodies are never sent.
 - `small`: Only small request bodies will be captured. The cutoff for small depends on the SDK (typically 4KB).
 - `medium`: Medium and small requests will be captured (typically 10KB).
 - `always`: The SDK will always capture the request body as long as Sentry can make sense of it.
@@ -223,6 +223,14 @@ By the time <PlatformIdentifier name="before-send" /> is executed, all scope dat
 
 This function is called with an SDK-specific breadcrumb object before the breadcrumb is added to the scope. When nothing is returned from the function, the breadcrumb is dropped. To pass the breadcrumb through, return the first argument, which contains the breadcrumb object.
 The callback typically gets a second argument (called a "hint") which contains the original object from which the breadcrumb was created to further customize what the breadcrumb should look like.
+
+</ConfigKey>
+
+<ConfigKey name="before-send-transaction">
+
+This function is called with an SDK-specific transaction object, and can return a modified transaction object, or `null` to skip reporting the transaction. This can be used, for instance, for manual PII-stripping before sending.
+
+By the time <PlatformIdentifier name="before-send-transaction" /> is executed, all scope data has already been applied to the event and further modification of the scope won't have any effect.
 
 </ConfigKey>
 

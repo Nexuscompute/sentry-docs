@@ -2,7 +2,9 @@ import {Fragment} from 'react';
 
 import {serverContext} from 'sentry-docs/serverContext';
 import {sortPages} from 'sentry-docs/utils';
+import {getUnversionedPath, VERSION_INDICATOR} from 'sentry-docs/versioning';
 
+import {NavChevron} from './sidebar/navChevron';
 import {SidebarLink} from './sidebarLink';
 import {SmartLink} from './smartLink';
 
@@ -29,28 +31,30 @@ export interface EntityTree extends Entity<EntityTree> {}
 export const toTree = (nodeList: Node[]): EntityTree[] => {
   const result: EntityTree[] = [];
   const level = {result};
-
   nodeList
     .sort((a, b) => a.path.localeCompare(b.path))
     .forEach(node => {
       let curPath = '';
-      node.path.split('/').reduce((r, name: string) => {
-        curPath += `${name}/`;
-        if (!r[name]) {
-          r[name] = {result: []};
-          r.result.push({
-            name,
-            children: r[name].result,
-            node: curPath === node.path ? node : null,
-          });
-        }
 
-        return r[name];
-      }, level);
+      // hide versioned pages in sidebar
+      if (!node.path.includes(VERSION_INDICATOR)) {
+        node.path.split('/').reduce((r, name: string) => {
+          curPath += `${name}/`;
+          if (!r[name]) {
+            r[name] = {result: []};
+            r.result.push({
+              name,
+              children: r[name].result,
+              node: curPath === node.path ? node : null,
+            });
+          }
+
+          return r[name];
+        }, level);
+      }
     });
 
-  result.length; // result[0] is undefined without this. wat
-  return result[0].children;
+  return result.length > 0 ? result[0].children : [];
 };
 
 export const renderChildren = (
@@ -111,6 +115,7 @@ type Props = {
   showDepth?: number;
   suppressMissing?: boolean;
   title?: string;
+  withChevron?: boolean;
 };
 
 export function DynamicNav({
@@ -124,6 +129,7 @@ export function DynamicNav({
   suppressMissing = false,
   noHeadingLink = false,
   headerClassName,
+  withChevron = false,
 }: Props) {
   if (root.startsWith('/')) {
     root = root.substring(1);
@@ -161,11 +167,12 @@ export function DynamicNav({
     parentNode && !noHeadingLink ? (
       <SmartLink
         to={`/${root}/`}
-        className={`${headerClassName} ${path.join('/') === root ? 'active' : ''}`}
+        className={`${headerClassName} ${getUnversionedPath(path, false) === root ? 'active' : ''} justify-between`}
         activeClassName="active"
         data-sidebar-link
       >
         <h6>{title}</h6>
+        {withChevron && <NavChevron direction={isActive ? 'down' : 'right'} />}
       </SmartLink>
     ) : (
       <div className={headerClassName} data-sidebar-link>
@@ -177,7 +184,7 @@ export function DynamicNav({
     <li className="mb-3" data-sidebar-branch>
       {header}
       {(!collapse || isActive) && entity.children && (
-        <ul data-sidebar-tree>
+        <ul data-sidebar-tree className="pl-3">
           {prependLinks &&
             prependLinks.map(link => (
               <SidebarLink to={link[0]} key={link[0]} title={link[1]} path={linkPath} />
