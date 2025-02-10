@@ -16,9 +16,12 @@ supported:
   - javascript.bun
   - javascript.deno
   - javascript.nextjs
+  - javascript.nuxt
   - javascript.astro
+  - javascript.solidstart
   - javascript.sveltekit
   - javascript.remix
+  - javascript.cloudflare
 ---
 
 To ensure that you have performance data about your messaging queues, you'll need to instrument custom spans and transactions around your queue producers and consumers.
@@ -35,11 +38,11 @@ To start capturing performance metrics, use the `Sentry.startSpan` function to w
 
 You must also include trace headers in your message using `spanToTraceHeader` and `spanToBaggageHeader` so that your consumers can continue your trace once your message is picked up.
 
-<Note>
+<Alert>
 
 Your `queue.publish` span must exist as a child within a parent span in order to be recognized as a producer span. If you don't already have a parent producer span, you can start a new one using `Sentry.startSpan`.
 
-</Note>
+</Alert>
 
 ```javascript {filename:my-queue.js}
 app.post("/publish", async (req, res) => {
@@ -54,14 +57,14 @@ app.post("/publish", async (req, res) => {
         "messaging.message.body.size": messageBodySize,
       },
     },
-    async (span) => {
-      const traceHeader = Sentry.spanToTraceHeader(span);
-      const baggageHeader = Sentry.spanToBaggageHeader(span);
+    async () => {
+      const { "sentry-trace": sentryTrace, baggage: sentryBaggage } =
+        Sentry.getTraceData();
       await redisClient.lPush(
         "messages",
         JSON.stringify({
-          traceHeader,
-          baggageHeader,
+          sentryTrace,
+          sentryBaggage,
           timestamp: Date.now(),
           messageId,
         })
@@ -85,18 +88,18 @@ To start capturing performance metrics, use the `Sentry.startSpan` function to w
 
 Use `Sentry.continueTrace` to connect your consumer spans to their associated producer spans, and `setStatus` to mark the trace of your message as success or failed.
 
-<Note>
+<Alert>
 
 Your `queue.process` span must exist as a child within a parent span in order to be recognized as a consumer span. If you don't have a parent span, you can create one to wrap the consumer span with by using `Sentry.startSpan`.
 
-</Note>
+</Alert>
 
 ```javascript {filename:my-consumer.js}
 const message = JSON.parse(await redisClient.lPop(QUEUE_KEY));
 const latency = Date.now() - message.timestamp;
 
 Sentry.continueTrace(
-    { sentryTrace: message.traceHeader, baggage: message.baggageHeader },
+    { sentryTrace: message.sentryTrace, baggage: message.sentryBaggage },
     () => {
         Sentry.startSpan({
                 name: 'queue_consumer_transaction',

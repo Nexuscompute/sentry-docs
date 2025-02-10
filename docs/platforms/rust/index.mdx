@@ -7,11 +7,11 @@ supportLevel: production
 
 On this page, we get you up and running with Sentry's Rust SDK.
 
-<Note>
+<Alert>
 
 If you don't already have an account and Sentry project established, head over to [sentry.io](https://sentry.io/signup/), then return to this page.
 
-</Note>
+</Alert>
 
 Using a framework? Check out the other SDKs we support in the left-hand dropdown.
 
@@ -32,7 +32,6 @@ The most convenient way to use this library is the `sentry::init` function, whic
 
 The `sentry::init` function returns a guard that when dropped, will flush Events that weren't yet sent to Sentry. It has a two-second deadline, so application shutdown may be slightly delayed as a result. Be sure to keep the guard or you won't be able to send events.
 
-<SignInNote />
 
 ```rust {filename:main.rs}
 let _guard = sentry::init(("___PUBLIC_DSN___", sentry::ClientOptions {
@@ -84,7 +83,6 @@ tokio::runtime::Builder::new_multi_thread()
 
 The quickest way to verify Sentry in your Rust application is to cause a panic:
 
-<SignInNote />
 
 ```rust {filename:main.rs}
 fn main() {
@@ -106,13 +104,15 @@ and libraries.
 A list of integrations and their feature flags can be found
 [in the integration API docs](https://docs.rs/sentry/0/sentry/integrations/index.html).
 
-<Note>
+<Alert>
 
 If you keep debug information files in the produced binary, rather than strip them down or split them,
 do not add the `debug_images` integration and the corresponding `debug-images` feature flag,
 as it will collide with the built-in debug file processing.
 
-</Note>
+Conflicts could lead to UI warning messages in Sentry, as it can be interpreted as a problem with debug files and processing your error. See this [comment](https://github.com/getsentry/sentry-rust/issues/574#issuecomment-1534316787) and connected issue for more information.
+
+</Alert>
 
 ## More Information
 

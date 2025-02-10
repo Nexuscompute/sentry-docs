@@ -48,6 +48,19 @@ const optionDetails: Record<
       </span>
     ),
   },
+  'source-context': {
+    name: 'Source context',
+    description: (
+      <span>
+        Upload your source code to allow Sentry to display snippets of your code next to
+        the event stack traces.
+      </span>
+    ),
+  },
+  opentelemetry: {
+    name: 'OpenTelemetry',
+    description: <span>Combine Sentry with OpenTelemetry.</span>,
+  },
 };
 
 const OPTION_IDS = [
@@ -55,6 +68,8 @@ const OPTION_IDS = [
   'performance',
   'profiling',
   'session-replay',
+  'source-context',
+  'opentelemetry',
 ] as const;
 
 type OptionId = (typeof OPTION_IDS)[number];
@@ -212,7 +227,7 @@ export function OnboardingOptionButtons({
   }, [options, touchedOptions]);
 
   return (
-    <div className="flex flex-wrap gap-3 py-2 bg-white/90 sticky top-[80px] z-[1000] shadow-[var(--shadow-6)] transition">
+    <div className="onboarding-options flex flex-wrap gap-3 py-2 bg-[var(--white)] dark:bg-[var(--gray-1)]  sticky top-[80px] z-[4] shadow-[var(--shadow-6)] transition">
       {options.map(option => (
         <Button
           variant="surface"

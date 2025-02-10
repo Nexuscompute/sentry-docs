@@ -1,6 +1,5 @@
 There are a few steps necessary in order to ensure that your OpenTelemetry setup is fully synced with your Sentry SDK. The following code snippet walks through the needed steps.
 
-<SignInNote />
 
 ```javascript
 // Sentry dependencies
@@ -33,7 +32,7 @@ function setupSentry() {
   setupGlobalHub();
 
   // Make sure to call `Sentry.init` BEFORE initializing the OpenTelemetry SDK
-  Sentry.init({
+  const client = Sentry.init({
     dsn: "___PUBLIC_DSN___",
     tracesSampleRate: 1.0,
     // set the instrumenter to use OpenTelemetry instead of Sentry
@@ -41,7 +40,6 @@ function setupSentry() {
     // ...
   });
 
-  const client = getClient();
   setupEventContextTrace(client);
 
   // You can wrap whatever local storage context manager you want to use
@@ -89,11 +87,11 @@ const span = startInactiveSpan({ name: "my span" });
 span.end();
 ```
 
-<Note>
+<Alert>
 
 If you are using the [@sentry/opentelemetry-node](https://www.npmjs.com/package/@sentry/opentelemetry-node) package, you can continue to do so. Usage instructions are in the
 package's README. This package has a slightly easier setup process but
 provides a more limited connection between Sentry and OpenTelemetry than the
 instructions outlined above.
 
-</Note>
+</Alert>

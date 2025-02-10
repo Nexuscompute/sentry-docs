@@ -1,14 +1,19 @@
 'use client';
 
+import {useEffect, useState} from 'react';
 import {Button} from '@radix-ui/themes';
-import {usePathname} from 'next/navigation';
 
 import {Header} from 'sentry-docs/components/header';
 import {Search} from 'sentry-docs/components/search';
 
 export default function NotFound() {
-  const pathname = usePathname() ?? '/';
-  const brokenUrl = `https://docs.sentry.io${pathname}`;
+  const [pathname, setPathname] = useState('');
+  const [host, setHost] = useState('');
+  useEffect(() => {
+    setPathname(window.location.pathname);
+    setHost(window.location.host);
+  }, []);
+  const brokenUrl = `${host}${pathname}`;
   const reportUrl = `https://github.com/getsentry/sentry-docs/issues/new?template=issue-platform-404.yml&title=🔗 404 Error&url=${brokenUrl}`;
   return (
     <div className="tw-app">
@@ -19,12 +24,18 @@ export default function NotFound() {
 
         <div className="max-w-md pt-8">
           <p className="pb-4">Let's give it another shot:</p>
-          <Search autoFocus path={pathname} searchPlatforms={[]} showChatBot={false} />
+          <Search
+            autoFocus
+            path={pathname}
+            searchPlatforms={[]}
+            showChatBot={false}
+            useStoredSearchPlatforms={false}
+          />
         </div>
         <div className="pt-8 flex gap-4">
           <Button variant="solid" size="3" asChild>
             <a href={reportUrl} target="_blank" rel="noreferrer">
-              Report 404 on Github
+              Report 404 on GitHub
             </a>
           </Button>
           <Button variant="soft" size="3" asChild>

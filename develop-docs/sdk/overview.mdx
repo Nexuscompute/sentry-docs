@@ -1,9 +1,8 @@
 ---
 title: Overview
+description: The following is a guide for implementing a new Sentry SDK. It covers the protocol for event submission as well as guidelines for how clients should typically look and behave.
 sidebar_order: 1
 ---
-
-The following is a guide for implementing a new Sentry SDK. It covers the protocol for event submission as well as guidelines for how clients should typically look and behave.
 
 ## Writing an SDK
 
@@ -28,12 +27,12 @@ Additionally, the following features are highly encouraged:
 -   Non-blocking event submission
 -   Context data helpers (e.g. setting the current user, recording breadcrumbs)
 -   Event sampling
--   Honor Sentry’s <Link to="/sdk/rate-limiting/">Rate Limiting</Link> HTTP headers
+-   Honor Sentry’s <Link to="/sdk/expected-features/rate-limiting/">Rate Limiting</Link> HTTP headers
 -   Pre and Post event send hooks
 -   Local variable values in stack trace (on platforms where this is possible)
 -   Send an `environment` on each event. If none was detected or set by the user, `production` should be used.
 
-<Link to="/sdk/features#features">Please see the features page</Link> for descriptions of commonly expected Sentry SDK features.
+Please see the <Link to="/sdk/expected-features#features">expected features page</Link> for descriptions of commonly Sentry SDK features.
 
 ## Usage for End-users
 
@@ -78,7 +77,7 @@ Sentry.init({
 })
 ```
 
-<Alert title="Note" level="info">
+<Alert title="Note">
 SDKs should accept an empty DSN as valid configuration.
 
 If an SDK is not initialized or if it is initialized with an empty DSN, the SDK should not send any data over the network, such as captured exceptions.
@@ -119,10 +118,9 @@ All segments, including PROJECT_ID, are of type String.
 
 Sentry provides the following endpoints:
 
-- <Link to="/sdk/envelopes">/envelope/</Link> for any submission using Envelopes.
-- <Link to="/sdk/store">/store/</Link> for plain JSON event submission.
+- <Link to="/sdk/data-model/envelopes">/envelope/</Link> for any submission using Envelopes.
 - [`/minidump/`](https://docs.sentry.io/platforms/native/minidump/) for multipart requests containing Minidumps.
-- [`/unreal/`](https://docs.sentry.io/platforms/native/ue4/) for Unreal
+- [`/unreal/`](https://docs.sentry.io/platforms/unreal/configuration/setup-crashreporter/) for Unreal
   Engine 4 crash reports.
 - [`/security/`](https://docs.sentry.io/error-reporting/security-policy-reporting/) for Browser
   CSP reports, usually configured in a browser instead of an SDK.
@@ -170,7 +168,7 @@ The `sentry_secret` must only be included if a secret key portion was contained
 in the DSN.  Future versions of the protocol will fully deprecate the secret
 key.
 
-<Alert title="Note" level="info">
+<Alert title="Note">
 You should include the SDK version string in the User-Agent portion of the header, and it will be used if `sentry_client` is not sent in the auth header.
 </Alert>
 
@@ -194,20 +192,18 @@ it’s possible to send these values via the querystring:
 `sentry_client`
 
 : **Recommended.** An arbitrary string that identifies your SDK, including its version. The
-  typical pattern for this is `client_name/client_version`.<br/>  
+  typical pattern for this is `client_name/client_version`.
   For example, the Python SDK might send this as `sentry.python/1.0`.
 
 `sentry_timestamp`
 
-: The unix timestamp representing the time at which this event was generated.<br/>  
-  *This key is effectively deprecated, and it is ignored on the receiving side.
-  Use the [`sent_at` envelope header](/sdk/envelopes/#envelope-headers) instead.*
+: The unix timestamp representing the time at which this event was generated.
+  *This key is effectively deprecated, and it is ignored on the receiving side. Use the [`sent_at` envelope header](/sdk/data-model/envelopes/#envelope-headers) instead.*
 
 `sentry_secret`
 
-: The secret key which should be provided as part of the SDK configuration.<br/>  
-  *This key is effectively deprecated, and no longer needs to be set. However, since it was required in older versions,
-  it should still be allowed and passed through to Sentry if set.*
+: The secret key which should be provided as part of the SDK configuration.
+  *This key is effectively deprecated, and no longer needs to be set. However, since it was required in older versions, it should still be allowed and passed through to Sentry if set.*
 
 ## HTTP Headers
 
@@ -232,8 +228,8 @@ The following additional headers are permitted as per CORS policy:
 
 ### User Agent
 
-All SDKs are expected to report their name and version via the `user-agent` header. 
-The following format should be used (unless required or recommended differently by the platform, 
+All SDKs are expected to report their name and version via the `user-agent` header.
+The following format should be used (unless required or recommended differently by the platform,
 e.g. for browser SDKs, where the user agent header must be set by the browser itself):
 
 `{sdk-name}/{sdk-version}`
@@ -244,13 +240,13 @@ For example:
 - `sentry-ruby/5.17.3`
 - `sentry.cocoa/8.24.0`
 
-Additional information about the runtime, operating system, and others can be 
+Additional information about the runtime, operating system, and others can be
 appended as comments in parentheses, separated by `; ` (semicolon and space), like so:
 
 `{sdk-name}/{sdk-version} ({runtime-name} {runtime-version}; {os-name} {os-version})`
 
-There is no expectation towards the presence or order of fields. The user agent 
-must not contain PII or otherwise sensitive data. In general it should not contain 
+There is no expectation towards the presence or order of fields. The user agent
+must not contain PII or otherwise sensitive data. In general it should not contain
 any information that is not already present in the payload.
 
 
@@ -266,6 +262,7 @@ and Sentry:
 - `deflate`: Using [zlib](http://tools.ietf.org/html/rfc1950) structure with the
   [deflate](http://tools.ietf.org/html/rfc1951) compression algorithm.
 - `br`: Using the [Brotli](https://en.wikipedia.org/wiki/Brotli) algorithm.
+- `zstd`: Using the [zstd](https://datatracker.ietf.org/doc/html/rfc8878) algorithm.
 
 ## Transfer Encoding
 
@@ -323,7 +320,7 @@ The `X-Sentry-Error` header and response body will not always contain a message,
 but they can still be helpful in debugging clients. When emitted, they will
 contain a precise error message, which is useful to identify root cause.
 
-<Alert title="Note" level="info">
+<Alert title="Note">
 We do not recommend that SDKs retry event submissions automatically on error
 &nbsp; not even if `Retry-After` is declared in the response headers. If a
 request fails once, it is very likely to fail again on the next attempt.
@@ -335,7 +332,7 @@ server.
 
 SDKs are supposed to provide standardized concurrency handling through the
 concept of hubs and scopes.  This is explained in more details in the
-<Link to="/sdk/unified-api#concurrency">Concurrency</Link> chapter of the unified API docs.
+<Link to="/sdk/miscellaneous/unified-api#concurrency">Concurrency</Link> chapter of the unified API docs.
 
 ## Layer of Integration
 

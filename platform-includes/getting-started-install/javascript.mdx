@@ -1,6 +1,5 @@
 In order to get started using the Sentry JavaScript SDK, add the following code to the top of your application, before all other scripts:
 
-<SignInNote />
 
 ```html
 <script
@@ -14,19 +13,23 @@ The Loader Script allows you to configure some SDK features from the Sentry UI, 
 Alternatively, you can also install the SDK via a package manager:
 
 ```bash {tabTitle:npm}
-npm install --save @sentry/browser
+npm install @sentry/browser --save
 ```
 
-```bash {tabTitle:Yarn}
+```bash {tabTitle:yarn}
 yarn add @sentry/browser
 ```
 
-<Note>
+```bash {tabTitle:pnpm}
+pnpm add @sentry/browser
+```
+
+<Alert>
 
 We also support installation via [CDN bundles](/platforms/javascript/install/loader/#cdn).
 
-</Note>
+</Alert>
 
 If you're updating your Sentry SDK to the latest version, check out our [migration guide](https://github.com/getsentry/sentry-javascript/blob/master/MIGRATION.md) to learn more about breaking changes.
 
-If you are using our previous Browser Javascript SDK, you can access the <Link rel={`nofollow`} to={`/platforms/javascript/legacy-sdk/`}>legacy SDK documentation</Link>, until further notice.
+If you are using our previous Browser JavaScript SDK, you can access the <Link rel={`nofollow`} to={`/platforms/javascript/legacy-sdk/`}>legacy SDK documentation</Link>, until further notice.

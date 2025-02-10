@@ -8,7 +8,7 @@ When you add Sentry to your app, you get a lot of valuable information about err
 
 Sentry offers [Inbound Filters](/concepts/data-management/filtering/) that you can enable per project to filter out various events in sentry.io. You can use our pre-defined inbound filters (e.g. filtering known browser extensions), as well as add your own message-based filters.
 
-However, we recommend filtering at the client-level, because it removes the overhead of sending events you don't actually want. The Sentry SDKs have several configuration options, which are described in this document, to help you filter out events. To learn more about the event fields you can use for filtering, see [Event Payloads](https://develop.sentry.dev/sdk/event-payloads/).
+However, we recommend filtering at the client-level, because it removes the overhead of sending events you don't actually want. The Sentry SDKs have several configuration options, which are described in this document, to help you filter out events. To learn more about the event fields you can use for filtering, see [Event Payloads](https://develop.sentry.dev/sdk/data-model/event-payloads/).
 
 ## Filtering Error Events
 
@@ -73,7 +73,7 @@ When a string or a non-error object is raised, Sentry creates a synthetic except
 
 ### Using `allowUrls` and `denyUrls`
 
-You can construct an allowed list of domains which may raise exceptions that should be sent to Sentry. For example, if your scripts are loaded from `cdn.example.com` and your site is `example.com`, you can set `allowUrls` to:
+You can construct an allowed list of domains for errors. Only errors created within these domains will be captured. For example, if your scripts are loaded from `cdn.example.com` and your site is `example.com`, you can set `allowUrls` to:
 
 ```javascript
 Sentry.init({
@@ -81,7 +81,7 @@ Sentry.init({
 });
 ```
 
-You can also use `denyUrls` if you want to block specific URLs from sending exceptions to Sentry.
+You can also use `denyUrls` if you want to block errors created on specific URLs from being sent to Sentry.
 
 ### Using `thirdPartyErrorFilterIntegration`
 
@@ -90,17 +90,18 @@ _Available in browser-based SDKs from version 8.10.0_
 The `thirdPartyErrorFilterIntegration` allows you to filter out errors originating from third parties, such as browser extensions, code-injecting browsers, or widgets from third-party services that also use Sentry.
 This integration can be very helpful in reducing noise that's not related to your own application code.
 
-<Note>
+<Alert>
 
 **Prerequisite**: To use the `thirdPartyErrorFilterIntegration`, ensure you are using a bundler and one of [Sentry's bundler plugins](https://github.com/getsentry/sentry-javascript-bundler-plugins).
 
-</Note>
+</Alert>
 
 This integration works by "marking" your JavaScript files with an "application key" during the build process.
 At runtime, if an error occurs, this integration checks application keys for each stack frame in the stack trace.
 This allows you to filter out errors with "unmarked" stack frames, which would indicate third-party code.
 
-To set up this integration, first pass an `applicationKey` to your Sentry bundler plugin. This can be an arbitrary string that identifies your application code:
+To set up this integration and to mark your JavaScript files with an application key, first pass an `applicationKey` option to your Sentry bundler plugin.
+This can be an arbitrary string that identifies your application code:
 
 ```ts {tabTitle:Vite} {8}
 // vite.config.ts
@@ -157,7 +158,7 @@ export default {
 
 Next, add the `thirdPartyErrorFilterIntegration` to your Sentry initialization:
 
-```js {3-14}
+```javascript {3-14}
 Sentry.init({
   integrations: [
     Sentry.thirdPartyErrorFilterIntegration({
@@ -189,6 +190,13 @@ There are four modes you can choose from:
 
 If you choose a mode to only apply tags, the tags can then be used in Sentry to filter your issue stream with the `third_party_code` tag in the issue search bar.
 
+<Alert>
+
+The `thirdPartyErrorFilterIntegration` will not work with the [Sentry Loader Script or CDN Bundles](https://docs.sentry.io/platforms/javascript/install/loader/).
+This is the case because the Sentry Loader Script and CDN Bundles are detected as "third party" by the integration. This makes it apply the chosen behavior to almost all events, since the Sentry SDK wraps many browser-native APIs.
+
+</Alert>
+
 ## Filtering Transaction Events
 
 To prevent certain transactions from being reported to Sentry, use the <PlatformIdentifier name="traces-sampler" /> or <PlatformIdentifier name="before-send-transaction" /> configuration option, which allows you to provide a function to evaluate the current transaction and drop it if it's not one you want.
@@ -213,13 +221,15 @@ If the transaction currently being processed has a parent transaction (from an u
 
 Learn more about <PlatformLink to="/configuration/sampling/">configuring the sample rate</PlatformLink>.
 
-### Using <PlatformIdentifier name="before-send-transaction" />
+### Using `beforeSendTransaction`
 
 <PlatformContent includePath="configuration/before-send-transaction" />
 
 ## Filtering Spans
 
-To prevent certain spans from being reported to Sentry, use the <PlatformIdentifier name="before-send-span" /> configuration option, which allows you to provide a function to evaluate the current span and drop it if it's not one you want.
-This API is available from Cocoa SDK version 8.30.0 and above.
+Available since JavaScript SDK version `8.2.0`.
+
+Use the <PlatformIdentifier name="before-send-span" /> configuration option which allows you to provide a function to modify a span.
+This function is called for the root span and all child spans. If you want to drop the root span, including its child spans, use [`beforeSendTransaction`](#using-beforesendtransaction) instead.
 
 <PlatformContent includePath="configuration/before-send-span" />

@@ -22,7 +22,11 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4.1.1
-      - uses: getsentry/action-setup-volta@c52be2ea13cfdc084edb806e81958c13e445941e  # v1.2.0
+
+      - uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4
+        id: setup-node
+        with:
+          node-version-file: 'package.json'
 
       - name: Install github-label-sync
         run: yarn global add github-label-sync@2.2.0

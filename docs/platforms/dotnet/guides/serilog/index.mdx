@@ -57,7 +57,6 @@ Log.Logger = new LoggerConfiguration()
 
 It's also possible to initialize the SDK through the Serilog integration. This is useful when the Serilog is the only integration being used in your application. To initialize the Sentry SDK through the Serilog integration, provide it with the DSN:
 
-<SignInNote />
 
 ```csharp
 Log.Logger = new LoggerConfiguration()
@@ -65,11 +64,11 @@ Log.Logger = new LoggerConfiguration()
   .CreateLogger();
 ```
 
-<Note>
+<Alert>
 
 The SDK only needs to be initialized once. If a `DSN` is made available to this integration, by default it **will** initialize the SDK. If you do not wish to initialize the SDK via this integration, set the `InitializeSdk` flag to **false**. Not providing a DSN or leaving it as `null` instructs the integration not to initialize the SDK and unless another integration initializes it or you call `SentrySdk.Init`, the SDK will stay disabled.
 
-</Note>
+</Alert>
 
 ### Options
 
@@ -85,7 +84,13 @@ A `LogLevel` which indicates the minimum level a log message has to be sent to S
 
 Whether or not this integration should initialize the SDK. If you intend to call `SentrySdk.Init` yourself you should set this flag to `false`.
 
-### Samples
+## Verify
+
+This snippet includes an intentional error, so you can test that everything is working as soon as you set it up.
+
+<PlatformContent includePath="getting-started-verify" />
+
+## Samples
 
 - A [simple example](https://github.com/getsentry/sentry-dotnet/tree/main/samples/Sentry.Samples.Serilog).
 - An [example with ASP.NET Core](https://github.com/getsentry/sentry-dotnet/tree/main/samples/Sentry.Samples.AspNetCore.Serilog).

@@ -10,11 +10,11 @@ All the existing RAM bundle formats are explained in detail in the [Metro Bundle
 
 ## Enabling RAM Bundles
 
-<Note>
+<Alert>
 
 If you are using [Hermes](/platforms/react-native/manual-setup/hermes/), you should not have the RAM bundles feature enabled. In Hermes, when loading the bytecode, `mmap` ensures that the entire file is not loaded. Using Hermes with RAM bundles might lead to issues, because those mechanisms are not compatible with each other.
 
-</Note>
+</Alert>
 
 To enable RAM bundles for your app, please consult with the [official React Native documentation](https://reactnative.dev/docs/ram-bundles-inline-requires#enable-the-ram-format).
 
@@ -22,12 +22,11 @@ If you use the official `react-native-sentry` integration of version `0.43.1` or
 
 ## Uploading Bundles Manually
 
-Starting from version `1.43.0`, `sentry-cli` provides two additional parameters to the `upload-sourcemaps` command to simplify bundle uploads: `--bundle` and `--bundle-sourcemap`. Using those parameters, you can pass the path to the application bundle, along with its source map, and the bundle will be automatically extracted before the upload, if necessary:
+Starting from version `1.43.0`, `sentry-cli` provides two additional parameters to the `sourcemaps upload` command to simplify bundle uploads: `--bundle` and `--bundle-sourcemap`. Using those parameters, you can pass the path to the application bundle, along with its source map, and the bundle will be automatically extracted before the upload, if necessary:
 
 ```bash {tabTitle:Android}
-node_modules/@sentry/cli/bin/sentry-cli releases \
-    files <release> \
-    upload-sourcemaps \
+node_modules/@sentry/cli/bin/sentry-cli sourcemaps upload \
+    --release <release> \
     --dist <dist> \
     --strip-prefix $projectRoot/fullFolder \
     --bundle index.android.bundle \
@@ -35,9 +34,8 @@ node_modules/@sentry/cli/bin/sentry-cli releases \
 ```
 
 ```bash {tabTitle:iOS}
-node_modules/@sentry/cli/bin/sentry-cli releases \
-    files <release> \
-    upload-sourcemaps \
+node_modules/@sentry/cli/bin/sentry-cli sourcemaps upload \
+    --release <release> \
     --dist <dist> \
     --strip-prefix $projectRoot/fullFolder \
     --bundle main.jsbundle \

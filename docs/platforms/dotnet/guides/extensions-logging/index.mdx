@@ -33,11 +33,11 @@ dotnet add package Sentry.Extensions.Logging -v {{@inject packages.version('sent
 
 This package extends `Sentry` main SDK. That means that besides the logging related features, through this package you'll also get access to all API and features available in the main `Sentry` SDK.
 
-<Note>
+<Alert>
 
 Messages logged from assemblies with the name starting with `Sentry` will not generate events.
 
-</Note>
+</Alert>
 
 ## Configure
 
@@ -81,7 +81,6 @@ With this approach, options like `Dsn`, `SendDefaultPii`, `MinimumBreadcrumbLeve
 
 Example using `appsettings.json`:
 
-<SignInNote />
 
 ```json
 {
@@ -103,7 +102,6 @@ Above we set the application wide minimum log level to `Debug`. Sentry specific 
 
 #### Through `ILoggerFactory`
 
-<SignInNote />
 
 ```csharp
 using (var loggerFactory = new LoggerFactory()
@@ -121,11 +119,11 @@ More settings can be passed via the callback configuring the `SentryOptions`.
 
 In cases where `AddSentry` is called without arguments, it's worth noting that an overload exists where `SentryOptions` can be configured just like if `SentrySdk.Init` had been called.
 
-<Note>
+<Alert>
 
 The SDK needs to be initialized only once. If the `DSN` is made available to this integration, by default it **will** initialize the SDK. If you do not wish to initialize the SDK via this configuration, set the `InitializeSdk` flag to **false**. Not providing a DSN or leaving it as an _empty string_ will disable the SDK.
 
-</Note>
+</Alert>
 
 For example:
 
@@ -163,7 +161,13 @@ For example, to remove all tags starting with `PROC_`, add a tag filter to your 
 options.TagFilters.Add("PROC_");
 ```
 
-### Samples
+## Verify
+
+This snippet includes an intentional error, so you can test that everything is working as soon as you set it up.
+
+<PlatformContent includePath="getting-started-verify" />
+
+## Samples
 
 - A [simple example](https://github.com/getsentry/sentry-dotnet/tree/main/samples/Sentry.Samples.ME.Logging) using simply the `LoggerFactory`.
 - An [example](https://github.com/getsentry/sentry-dotnet/tree/main/samples/Sentry.Samples.GenericHost) using the _generic host_.

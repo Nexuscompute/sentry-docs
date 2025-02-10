@@ -15,6 +15,12 @@ Sentry provides an integration with `EntityFramework` through the of the [Sentry
 
 All queries executed are added as breadcrumbs and are sent with any event which happens on the same [scope](enriching-events/scopes/). Besides that, validation errors are also included as `Extra`.
 
+## Features
+
+In addition to capturing errors, you can monitor interactions between multiple services or applications by [enabling tracing](/concepts/key-terms/tracing/).
+
+Select which Sentry features you'd like to install in addition to Error Monitoring to get the corresponding installation and configuration instructions below.
+
 ## Install
 
 <OnboardingOptionButtons options={['error-monitoring', 'performance']}/>
@@ -42,7 +48,6 @@ For example, configuring an ASP.NET app with _global.asax_:
 ```csharp {filename:global.asax} {"onboardingOptions": {"performance": "16-18, 27-36"}}
 using System;
 using System.Configuration;
-using Sentry;
 using Sentry.AspNet;
 
 public class MvcApplication : System.Web.HttpApplication
@@ -84,7 +89,13 @@ public class MvcApplication : System.Web.HttpApplication
 }
 ```
 
-### Sample
+## Verify
+
+This snippet includes an intentional error, so you can test that everything is working as soon as you set it up.
+
+<PlatformContent includePath="getting-started-verify" />
+
+## Sample
 
 Check out a complete working [sample](https://github.com/getsentry/sentry-dotnet-ef/tree/master/samples/Sentry.Samples.AspNet.Mvc) to see it in action.
 

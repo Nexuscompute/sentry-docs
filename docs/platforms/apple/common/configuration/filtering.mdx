@@ -8,7 +8,7 @@ When you add Sentry to your app, you get a lot of valuable information about err
 
 The Sentry SDKs have several configuration options to help you filter out events.
 
-We also offer [Inbound Filters](/concepts/data-management/filtering/) to filter events in sentry.io. We recommend filtering at the client level though, because it removes the overhead of sending events you don't actually want. Learn more about the [fields available in an event](https://develop.sentry.dev/sdk/event-payloads/).
+We also offer [Inbound Filters](/concepts/data-management/filtering/) to filter events in sentry.io. We recommend filtering at the client level though, because it removes the overhead of sending events you don't actually want. Learn more about the [fields available in an event](https://develop.sentry.dev/sdk/data-model/event-payloads/).
 
 ## Filtering Error Events
 
@@ -26,5 +26,6 @@ Note also that breadcrumbs can be filtered, as discussed in [our Breadcrumbs doc
 ## Filtering Spans
 
 To prevent certain spans from being reported to Sentry, use the <PlatformIdentifier name="before-send-span" /> configuration option, which allows you to provide a function to evaluate the current span and drop it if it's not one you want.
+This API is available from Cocoa SDK version 8.30.0 and above.
 
 <PlatformContent includePath="configuration/before-send-span" />

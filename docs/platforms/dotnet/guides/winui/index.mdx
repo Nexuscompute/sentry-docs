@@ -5,6 +5,12 @@ description: "Learn about using Sentry's .NET SDK with the Windows UI Library"
 
 Sentry's .NET SDK works with Windows UI Library applications through the [Sentry NuGet package](https://www.nuget.org/packages/Sentry).
 
+## Features
+
+In addition to capturing errors, you can monitor interactions between multiple services or applications by [enabling tracing](/concepts/key-terms/tracing/).
+
+Select which Sentry features you'd like to install in addition to Error Monitoring to get the corresponding installation and configuration instructions below.
+
 ## Install
 
 <OnboardingOptionButtons options={['error-monitoring', 'performance']}/>
@@ -15,18 +21,20 @@ Sentry's .NET SDK works with Windows UI Library applications through the [Sentry
 
 If you don't have [Trimming](https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/trimming-options?pivots=dotnet-8-0) enabled when publishing your application then all you need to do is [initialize the SDK with `SentrySdk.Init`](/platforms/dotnet/) in the constructor of your application class (usually `App.xaml.cs`). Sentry's integration for WinUI will automatically capture any unhandled exceptions in your application and send these to Sentry.
 
-<Note>
+<Alert>
 
 Do not initialize the SDK in the `OnLaunched` event of the application or the `Hub` will not be initialized correctly.
 
-</Note>
+</Alert>
 
-<SignInNote />
+
+In addition to capturing errors, you can monitor interactions between multiple services or applications by [enabling tracing](/concepts/key-terms/tracing/).
+
+Select which Sentry features you'd like to install in addition to Error Monitoring to get the corresponding installation and configuration instructions below.
 
 <OnboardingOptionButtons options={['error-monitoring', 'performance']}/>
 
 ```csharp {"onboardingOptions": {"performance": "17-20"}}
-using Sentry;
 using Sentry.Protocol;
 
 sealed partial class App : Application
@@ -64,17 +72,15 @@ sealed partial class App : Application
 
 If you have [Trimming](https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/trimming-options?pivots=dotnet-8-0) enabled when publishing your application then, in addition to [initializing the SDK with `SentrySdk.Init`](/platforms/dotnet/), you must also configure an UnhandledException handler in the constructor of your application class (usually `App.xaml.cs`).
 
-<Note>
+<Alert>
 
 Do not initialize the SDK in the `OnLaunched` event of the application or the `Hub` will not be initialized correctly.
 
-</Note>
+</Alert>
 
-<SignInNote />
 
 ```csharp
 // Add these to your existing using statements.
-using Sentry;
 using Sentry.Protocol;
 using UnhandledExceptionEventArgs = Microsoft.UI.Xaml.UnhandledExceptionEventArgs;
 
@@ -136,3 +142,9 @@ sealed partial class App : Application
     }
 }
 ```
+
+## Verify
+
+This snippet includes an intentional error, so you can test that everything is working as soon as you set it up.
+
+<PlatformContent includePath="getting-started-verify" />

@@ -11,11 +11,17 @@ categories:
 
 On this page, we get you up and running with Sentry's Dart SDK.
 
-<Note>
+<Alert>
 
 If you don't already have an account and Sentry project established, head over to [sentry.io](https://sentry.io/signup/), then return to this page.
 
-</Note>
+</Alert>
+
+## Features
+
+In addition to capturing errors, you can monitor interactions between multiple services or applications by [enabling tracing](/concepts/key-terms/tracing/).
+
+Select which Sentry features you'd like to install in addition to Error Monitoring to get the corresponding installation and configuration instructions below.
 
 ## Install
 
@@ -37,7 +43,6 @@ dependencies:
 
 To capture all errors, initialize the Sentry Dart SDK as soon as possible.
 
-<SignInNote />
 
 ```dart {"onboardingOptions": {"performance": "6-8"}}
 import 'package:sentry/sentry.dart';
@@ -63,7 +68,7 @@ Verify that your app is sending events to Sentry by adding the following snippet
 import 'package:sentry/sentry.dart';
 
 try {
-  aMethodThatMightFail();
+  throw Exception('Sentry Test Error');
 } catch (exception, stackTrace) {
   await Sentry.captureException(
     exception,

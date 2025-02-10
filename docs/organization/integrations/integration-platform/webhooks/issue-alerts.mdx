@@ -6,20 +6,9 @@ description: "Learn more about Sentry's integration platform issue alert webhook
 
 Sentry integrations which have been made available as [alert rule actions](/organization/integrations/integration-platform/#alerts) can receive issue alert webhooks.
 
-The gif below shows how to set up an internal integration that can receive issue alerts.
+The interactive demo below shows how to set up an internal integration that can receive issue alerts.
 
-<div style={{"height":"0px","paddingBottom":"calc(56.88524590163935% + 41px)","position":"relative","width":"100%"}}>
-  <iframe
-    src="https://demo.arcade.software/v7uhzmdV6Q5PDzoVPAE6?embed&show_copy_link=true"
-    frameborder="0"
-    loading="lazy"
-    webkitallowfullscreen
-    mozallowfullscreen
-    allowfullscreen
-    style={{"colorScheme":"light","height":"100%","left":"0px","position":"absolute","top":"0px","width":"100%"}}
-    title="Create Internal Integration &amp; Alert Rule"
-  ></iframe>
-</div>
+<Arcade src="https://demo.arcade.software/v7uhzmdV6Q5PDzoVPAE6?embed&show_copy_link=true" />
 
 ## Sentry-Hook-Resource Header
 
@@ -62,11 +51,11 @@ The gif below shows how to set up an internal integration that can receive issue
 - type: string
 - description: the label of the rule that was triggered
 
-<Note>
+<Alert>
 
 The following two fields are for [alert rule action UI components](/organization/integrations/integration-platform/ui-components/alert-rule-action) only.
 
-</Note>
+</Alert>
 
 ### data['issue_alert']['title']
 
@@ -250,7 +239,7 @@ The following two fields are for [alert rule action UI components](/organization
         "integrations": [
           "InboundFilters",
           "FunctionToString",
-          "TryCatch",
+          "BrowserApiErrors",
           "Breadcrumbs",
           "GlobalHandlers",
           "LinkedErrors",

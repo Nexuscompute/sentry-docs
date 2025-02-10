@@ -1,6 +1,10 @@
 import type {NextRequest} from 'next/server';
 import {NextResponse} from 'next/server';
 
+// This env var is set in next.config.js based on the `NEXT_PUBLIC_DEVELOPER_DOCS` env var at build time
+// a workaround edge middleware not having access to env vars
+const isDeveloperDocs = process.env.DEVELOPER_DOCS_;
+
 export const config = {
   // learn more: https://nextjs.org/docs/pages/building-your-application/routing/middleware#matcher
   matcher: [
@@ -9,8 +13,7 @@ export const config = {
     // - _next/static (static files)
     // - _next/image (image optimization files)
     // - favicon.ico (favicon file)
-    // - changelog
-    '/((?!api|_next/static|_next/image|favicon.ico|changelog).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 };
 
@@ -19,12 +22,17 @@ export function middleware(request: NextRequest) {
   return handleRedirects(request);
 }
 
+// don't send Permanent Redirects (301) in dev mode - it gets cached for "localhost" by the browser
+const redirectStatusCode = process.env.NODE_ENV === 'development' ? 302 : 301;
+
 const handleRedirects = (request: NextRequest) => {
   const urlPath = request.nextUrl.pathname;
 
   const redirectTo = redirectMap.get(urlPath);
   if (redirectTo) {
-    return NextResponse.redirect(new URL(redirectTo, request.url), {status: 301});
+    return NextResponse.redirect(new URL(redirectTo, request.url), {
+      status: redirectStatusCode,
+    });
   }
 
   // If we don't find an exact match, we try to look for a :guide placeholder
@@ -47,7 +55,7 @@ const handleRedirects = (request: NextRequest) => {
     );
 
     return NextResponse.redirect(new URL(finalRedirectToPath, request.url), {
-      status: 301,
+      status: redirectStatusCode,
     });
   }
 
@@ -56,14 +64,27 @@ const handleRedirects = (request: NextRequest) => {
 
 type Redirect = {
   /** a string with a leading and a trailing slash */
-  from: `/${string}/`;
+  from: `/${string}/` | '/';
   to: string;
 };
 
-const REDIRECTS: Redirect[] = [
+/** Note: if you want to set redirects for developer docs, set them below in `DEVELOPER_DOCS_REDIRECTS` */
+const USER_DOCS_REDIRECTS: Redirect[] = [
+  {
+    from: '/platforms/python/http_errors/',
+    to: '/platforms/python/integrations/django/http_errors/',
+  },
+  {
+    from: '/platforms/javascript/guides/react/configuration/integrations/trycatch/',
+    to: '/platforms/javascript/configuration/integrations/browserapierrors/',
+  },
   {
     from: '/platforms/javascript/performance/instrumentation/custom-instrumentation/caches-module/',
     to: '/platforms/javascript/guides/node/performance/instrumentation/custom-instrumentation/caches-module/',
+  },
+  {
+    from: '/platforms/javascript/guides/nuxt/install/top-level-import/',
+    to: '/platforms/javascript/guides/nuxt/install/limited-server-tracing/',
   },
   {
     from: '/account/early-adopter-features/discord/',
@@ -138,6 +159,18 @@ const REDIRECTS: Redirect[] = [
     to: '/product/performance/',
   },
   {
+    from: '/product/data-management-settings/event-grouping/',
+    to: '/concepts/data-management/event-grouping/',
+  },
+  {
+    from: '/product/data-management-settings/data-forwarding/',
+    to: '/concepts/data-management/data-forwarding/',
+  },
+  {
+    from: '/product/data-management-settings/filtering/',
+    to: '/concepts/data-management/filtering/',
+  },
+  {
     from: '/platforms/data-management/',
     to: '/concepts/data-management/',
   },
@@ -186,12 +219,12 @@ const REDIRECTS: Redirect[] = [
     to: '/platforms/go/usage/serverless/',
   },
   {
-    from: '/platforms/go/martini/',
-    to: '/platforms/go/guides/martini/',
-  },
-  {
     from: '/platforms/go/fasthttp/',
     to: '/platforms/go/guides/fasthttp/',
+  },
+  {
+    from: '/platforms/go/fiber/',
+    to: '/platforms/go/guides/fiber/',
   },
   {
     from: '/platforms/go/echo/',
@@ -204,6 +237,18 @@ const REDIRECTS: Redirect[] = [
   {
     from: '/platforms/go/negroni/',
     to: '/platforms/go/guides/negroni/',
+  },
+  {
+    from: '/platforms/go/zerolog/',
+    to: '/platforms/go/guides/zerolog/',
+  },
+  {
+    from: '/platforms/go/slog/',
+    to: '/platforms/go/guides/slog/',
+  },
+  {
+    from: '/platforms/go/logrus/',
+    to: '/platforms/go/guides/logrus/',
   },
   {
     from: '/clients/go/integrations/http/',
@@ -310,6 +355,10 @@ const REDIRECTS: Redirect[] = [
     to: '/platforms/react-native/sourcemaps/',
   },
   {
+    from: '/platforms/react-native/touchevents/',
+    to: '/platforms/react-native/configuration/touchevents/',
+  },
+  {
     from: '/platforms/python/data-collected/',
     to: '/platforms/python/data-management/data-collected/',
   },
@@ -390,6 +439,14 @@ const REDIRECTS: Redirect[] = [
     to: '/platforms/python/integrations/starlite/',
   },
   {
+    from: '/clients/python/integrations/litestar/',
+    to: '/platforms/python/integrations/litestar/',
+  },
+  {
+    from: '/platforms/python/litestar/',
+    to: '/platforms/python/integrations/litestar/',
+  },
+  {
     from: '/platforms/python/beam/',
     to: '/platforms/python/integrations/beam/',
   },
@@ -452,6 +509,18 @@ const REDIRECTS: Redirect[] = [
   {
     from: '/platforms/python/tryton/',
     to: '/platforms/python/integrations/tryton/',
+  },
+  {
+    from: '/platforms/python/integrations/feature-flags/launchdarkly/',
+    to: '/platforms/python/integrations/launchdarkly/',
+  },
+  {
+    from: '/platforms/python/integrations/feature-flags/openfeature/',
+    to: '/platforms/python/integrations/openfeature/',
+  },
+  {
+    from: '/platforms/python/integrations/feature-flags/unleash/',
+    to: '/platforms/python/integrations/unleash/',
   },
   {
     from: '/clients/python/breadcrumbs/',
@@ -615,7 +684,7 @@ const REDIRECTS: Redirect[] = [
   },
   {
     from: '/platforms/php/guides/symfony/performance/pm-integrations/',
-    to: '/platforms/php/guides/symfony/performance/instrumentation/automatic-instrumentation/',
+    to: '/platforms/php/guides/symfony/tracing/instrumentation/automatic-instrumentation/',
   },
   {
     from: '/clients/php/integrations/laravel/',
@@ -1127,15 +1196,15 @@ const REDIRECTS: Redirect[] = [
   },
   {
     from: '/product/performance/event-detail/',
-    to: '/product/sentry-basics/concepts/key-terms/tracing/trace-view/',
+    to: '/concepts/key-terms/tracing/trace-view/',
   },
   {
     from: '/product/sentry-basics/tracing/event-detail/',
     to: '/product/sentry-basics/concepts/key-terms/tracing/trace-view/',
   },
   {
-    from: '/product/sentry-basics/concepts/tracing/event-detail/',
-    to: '/product/sentry-basics/concepts/key-terms/tracing/trace-view/',
+    from: '/concepts/key-terms/tracing/event-detail/',
+    to: '/concepts/key-terms/tracing/trace-view/',
   },
   {
     from: '/product/sentry-basics/dsn-explainer/',
@@ -1370,6 +1439,10 @@ const REDIRECTS: Redirect[] = [
     to: '/platforms/javascript/guides/react/features/react-router/',
   },
   {
+    from: '/platforms/javascript/guides/session-replay/',
+    to: '/platforms/javascript/session-replay/',
+  },
+  {
     from: '/platforms/javascript/react/',
     to: '/platforms/javascript/guides/react/',
   },
@@ -1541,6 +1614,36 @@ const REDIRECTS: Redirect[] = [
     from: '/platforms/javascript/guides/:guide/usage/sdk-fingerprinting/',
     to: '/platforms/javascript/guides/:guide/enriching-events/fingerprinting/',
   },
+  {
+    from: '/platforms/javascript/guides/:guide/tracing/instrumentation/opentelemetry/',
+    to: '/platforms/javascript/guides/:guide/opentelemetry/',
+  },
+  // START  bandaid fix for #11870
+  {
+    from: '/platforms/java/performance/instrumentation/opentelemetry/',
+    to: '/platforms/java/tracing/instrumentation/opentelemetry/',
+  },
+  {
+    from: '/platforms/go/performance/instrumentation/opentelemetry/',
+    to: '/platforms/go/tracing/instrumentation/opentelemetry/',
+  },
+  {
+    from: '/platforms/javascript/guides/node/performance/instrumentation/opentelemetry/',
+    to: '/platforms/javascript/guides/node/opentelemetry/',
+  },
+  {
+    from: '/platforms/python/performance/instrumentation/opentelemetry/',
+    to: '/platforms/python/tracing/instrumentation/opentelemetry/',
+  },
+  {
+    from: '/platforms/ruby/performance/instrumentation/opentelemetry/',
+    to: '/platforms/ruby/tracing/instrumentation/opentelemetry/',
+  },
+  {
+    from: '/platforms/ruby/metrics/',
+    to: '/platforms/ruby/',
+  },
+  // END  bandaid fix for #11870
   {
     from: '/learn/cli/configuration/',
     to: '/cli/configuration/',
@@ -1838,10 +1941,6 @@ const REDIRECTS: Redirect[] = [
     to: '/organization/integrations/notification-incidents/msteams/',
   },
   {
-    from: '/product/integrations/threads/',
-    to: '/organization/integrations/notification-incidents/threads/',
-  },
-  {
     from: '/product/integrations/rootly/',
     to: '/organization/integrations/notification-incidents/rootly/',
   },
@@ -2078,6 +2177,14 @@ const REDIRECTS: Redirect[] = [
     to: '/organization/early-adopter-features/',
   },
   {
+    from: '/pricing/am2-pricing/',
+    to: '/pricing/legacy-pricing/',
+  },
+  {
+    from: '/pricing/quotas/manage-event-stream-guide/adjusting-quotas/',
+    to: '/pricing/quotas/manage-event-stream-guide/#adjusting-quotas',
+  },
+  {
     from: '/learn/pricing/',
     to: '/pricing/',
   },
@@ -2162,10 +2269,6 @@ const REDIRECTS: Redirect[] = [
     to: '/product/dashboards/',
   },
   {
-    from: '/product/error-monitoring/dashboards/',
-    to: '/product/dashboards/',
-  },
-  {
     from: '/profiling/',
     to: '/product/explore/profiling/',
   },
@@ -2189,10 +2292,7 @@ const REDIRECTS: Redirect[] = [
     from: '/profiling/mobile-app-profiling/metrics/',
     to: '/product/explore/profiling/mobile-app-profiling/metrics/',
   },
-  {
-    from: '/product/error-monitoring/filtering/',
-    to: '/concepts/data-management/filtering/',
-  },
+
   {
     from: '/data-management/rollups/',
     to: '/concepts/data-management/event-grouping/',
@@ -2450,20 +2550,8 @@ const REDIRECTS: Redirect[] = [
     to: '/product/issues/ownership-rules/',
   },
   {
-    from: '/product/error-monitoring/issue-owners/',
-    to: '/product/issues/ownership-rules/',
-  },
-  {
     from: '/product/releases/suspect-commits/',
     to: '/product/issues/suspect-commits/',
-  },
-  {
-    from: '/product/error-monitoring/',
-    to: '/product/issues/',
-  },
-  {
-    from: '/product/error-monitoring/reprocessing/',
-    to: '/product/issues/reprocessing/',
   },
   {
     from: '/product/accounts/early-adopter-features/issue-archiving/',
@@ -2525,17 +2613,18 @@ const REDIRECTS: Redirect[] = [
     from: '/product/issues/performance-issues/large-http-payload/',
     to: '/product/issues/issue-details/performance-issues/large-http-payload/',
   },
-  {
-    from: '/product/error-monitoring/breadcrumbs/',
-    to: '/product/issues/issue-details/breadcrumbs/',
-  },
+
   {
     from: '/learn/breadcrumbs/',
     to: '/product/issues/issue-details/breadcrumbs/',
   },
   {
     from: '/product/issues/issue-details/suggested-fix/',
-    to: '/product/issues/issue-details/ai-suggested-solution/',
+    to: '/product/issues/issue-details/sentry-ai/',
+  },
+  {
+    from: '/product/issues/issue-details/ai-suggested-solution/',
+    to: '/product/issues/issue-details/sentry-ai/',
   },
   {
     from: '/guides/grouping-and-fingerprints/',
@@ -2654,126 +2743,6 @@ const REDIRECTS: Redirect[] = [
     to: '/platforms/python/integrations/gnu_backtrace/',
   },
   {
-    from: '/api/releases/post-organization-release-files/',
-    to: '/api/releases/update-an-organization-release-file/',
-  },
-  {
-    from: '/api/releases/post-release-deploys/',
-    to: '/api/releases/create-a-new-deploy-for-an-organization/',
-  },
-  {
-    from: '/api/projects/post-project-user-reports/',
-    to: '/api/projects/submit-user-feedback/',
-  },
-  {
-    from: '/api/projects/post-project-keys/',
-    to: '/api/projects/create-a-new-client-key/',
-  },
-  {
-    from: '/api/events/get-group-events-latest/',
-    to: '/api/events/retrieve-the-latest-event-for-an-issue/',
-  },
-  {
-    from: '/api/organizations/get-event-id-lookup/',
-    to: '/api/organizations/resolve-an-event-id/',
-  },
-  {
-    from: '/api/events/get-project-group-index/',
-    to: '/api/events/list-a-projects-issues/',
-  },
-  {
-    from: '/api/events/get-group-hashes/',
-    to: '/api/events/list-an-issues-hashes/',
-  },
-  {
-    from: '/api/projects/get-project-stats/',
-    to: '/api/projects/retrieve-event-counts-for-a-project/',
-  },
-  {
-    from: '/api/projects/get-project-index/',
-    to: '/api/projects/list-your-projects/',
-  },
-  {
-    from: '/api/organizations/get-organization-users/',
-    to: '/api/organizations/list-an-organizations-users/',
-  },
-  {
-    from: '/api/events/get-group-details/',
-    to: '/api/events/retrieve-an-issue/',
-  },
-  {
-    from: '/api/events/get-project-event-details/',
-    to: '/api/events/retrieve-an-event-for-a-project/',
-  },
-  {
-    from: '/api/events/get-group-tag-key-details/',
-    to: '/api/events/retrieve-tag-details/',
-  },
-  {
-    from: '/api/organizations/get-organization-projects/',
-    to: '/api/organizations/list-an-organizations-projects/',
-  },
-  {
-    from: '/api/releases/post-project-release-files/',
-    to: '/api/releases/upload-a-new-project-release-file/',
-  },
-  {
-    from: '/api/projects/get-project-users/',
-    to: '/api/projects/list-a-projects-users/',
-  },
-  {
-    from: '/api/projects/put-project-details/',
-    to: '/api/projects/update-a-project/',
-  },
-  {
-    from: '/api/projects/post-debug-files/',
-    to: '/api/projects/upload-a-new-file/',
-  },
-  {
-    from: '/api/organizations/get-organization-stats/',
-    to: '/api/organizations/retrieve-event-counts-for-an-organization/',
-  },
-  {
-    from: '/api/releases/post-organization-releases/',
-    to: '/api/releases/create-a-new-release-for-an-organization/',
-  },
-  {
-    from: '/api/projects/get-project-keys/',
-    to: '/api/projects/list-a-projects-client-keys/',
-  },
-  {
-    from: '/api/teams/get-organization-teams/',
-    to: '/api/teams/list-an-organizations-teams/',
-  },
-  {
-    from: '/api/teams/post-team-projects/',
-    to: '/api/teams/create-a-new-project/',
-  },
-  {
-    from: '/api/events/put-project-group-index/',
-    to: '/api/events/bulk-mutate-a-list-of-issues/',
-  },
-  {
-    from: '/api/events/delete-project-group-index/',
-    to: '/api/events/bulk-remove-a-list-of-issues/',
-  },
-  {
-    from: '/api/projects/delete-project-details/',
-    to: '/api/projects/delete-a-project/',
-  },
-  {
-    from: '/api/events/get-group-events/',
-    to: '/api/events/list-an-issues-events/',
-  },
-  {
-    from: '/api/organizations/get-organization-details/',
-    to: '/api/organizations/retrieve-an-organization/',
-  },
-  {
-    from: '/api/organizations/experimental-retrieve-release-health-session-statistics/',
-    to: '/api/releases/retrieve-release-health-session-statistics/',
-  },
-  {
     from: '/learn/context/',
     to: '/platform-redirect/?next=/enriching-events/context/',
   },
@@ -2783,7 +2752,7 @@ const REDIRECTS: Redirect[] = [
   },
   {
     from: '/clientdev/interfaces/http/',
-    to: 'https://develop.sentry.dev/sdk/event-payloads/request',
+    to: 'https://develop.sentry.dev/sdk/data-model/event-payloads/request',
   },
   {
     from: '/clients/csharp/',
@@ -3078,10 +3047,6 @@ const REDIRECTS: Redirect[] = [
     to: '/pricing/quotas/manage-cron-monitors/',
   },
   {
-    from: '/product/accounts/migration/',
-    to: '/concepts/migration/',
-  },
-  {
     from: '/product/accounts/auth-tokens/',
     to: '/account/auth-tokens/',
   },
@@ -3107,6 +3072,10 @@ const REDIRECTS: Redirect[] = [
   },
   {
     from: '/account/quotas/',
+    to: '/pricing/quotas/',
+  },
+  {
+    from: '/accounts/quotas/',
     to: '/pricing/quotas/',
   },
   {
@@ -3265,6 +3234,717 @@ const REDIRECTS: Redirect[] = [
     from: '/account/quotas/spike-protection/',
     to: '/pricing/quotas/spike-protection/',
   },
+  {
+    from: '/_platforms/',
+    to: '/platforms',
+  },
+  {
+    from: '/accounts/require-2fa/',
+    to: '/organization/authentication/two-factor-authentication/',
+  },
+  {
+    from: '/platforms/go/guides/fiber/user-feedback/configuration/',
+    to: '/platforms/go/user-feedback/',
+  },
+  {
+    from: '/platforms/javascript/guides/',
+    to: '/platforms/javascript/',
+  },
+  {
+    from: '/platforms/native/crashpad/',
+    to: '/platforms/native/guides/crashpad/',
+  },
+  {
+    from: '/platforms/python/legacy-sdk/integrations/pylons/',
+    to: '/platforms/python/legacy-sdk/integrations/#pylons',
+  },
+  {
+    from: '/concepts/data-management/event-grouping/grouping-breakdown/',
+    to: '/concepts/data-management/event-grouping/',
+  },
+  {
+    from: '/product/explore/session-replay/performance-overhead/',
+    to: '/product/explore/session-replay/web/performance-overhead/',
+  },
+  {
+    from: '/organization/integrations/project-mgmt/jira/',
+    to: '/organization/integrations/issue-tracking/jira/',
+  },
+  {
+    from: '/organization/integrations/source-code-/',
+    to: '/organization/integrations/source-code-mgmt/',
+  },
+  {
+    from: '/product/explore/session-replay/getting-started/',
+    to: '/product/explore/session-replay/',
+  },
+  {
+    from: '/product/explore/session-replay/replay-page-and-filters/',
+    to: '/product/explore/session-replay/web/replay-page-and-filters/',
+  },
+  {
+    from: '/platforms/nintendo-switch/',
+    to: '/platforms/unity/native-support/',
+  },
+  {
+    from: '/product/teams/roles/',
+    to: '/organization/membership/#team-level-roles',
+  },
+  {
+    from: '/enriching-error-data/additional-data/',
+    to: '/concepts/key-terms/enrich-data/',
+  },
+  {
+    from: '/performance/instrumentation/automatic-instrumentation/',
+    to: '/tracing/instrumentation/automatic-instrumentation',
+  },
+  {
+    from: '/concepts/key-terms/key-terms/tracing/trace-view/#operations-breakdown/',
+    to: '/product/insights/',
+  },
+  {
+    from: '/platforms/javascript/guides/aws-lambda/container-image/',
+    to: '/platforms/javascript/guides/aws-lambda/install/',
+  },
+  {
+    from: '/platforms/javascript/guides/aws-lambda/layer/',
+    to: '/platforms/javascript/guides/aws-lambda/install/',
+  },
+  {
+    from: '/api/projects/post-project-service-hooks/',
+    to: '/api/projects/register-a-new-service-hook/',
+  },
+  {
+    from: '/api/organizations/list-your-organizations/',
+    to: '/api/users/list-your-organizations/',
+  },
+  {
+    from: '/clients/cocoa/',
+    to: '/platforms/apple/',
+  },
+  {
+    from: '/clients/react-native/',
+    to: 'platforms/react-native/',
+  },
+  {
+    from: '/learn/scopes/?platform=rust/',
+    to: '/platforms/rust/enriching-events/scopes/',
+  },
+  {
+    from: '/platforms/android/android-video/',
+    to: '/platforms/android/',
+  },
+  {
+    from: '/platforms/android/tracing/included-instrumentation/',
+    to: '/platforms/android/tracing/instrumentation/automatic-instrumentation',
+  },
+  {
+    from: '/platforms/javascript/guides/cordova/tracing/trace-propagation/',
+    to: '/platforms/javascript/guides/cordova/tracing/instrumentation/custom-instrumentation/',
+  },
+  {
+    from: '/platforms/javascript/pluggable-integrations/',
+    to: '/platforms/javascript/configuration/integrations/#lazy-loading-integrations',
+  },
+  {
+    from: '/platforms/react-native/tracing/included-instrumentation/',
+    to: '/platforms/react-native/tracing/instrumentation/automatic-instrumentation/',
+  },
+  {
+    from: '/platforms/rust/env_logger/index.html/',
+    to: '/platforms/rust/configuration/environments/',
+  },
+  {
+    from: '/clients/cordova/',
+    to: '/platforms/javascript/guides/cordova/',
+  },
+  {
+    from: '/organization/integrations/incidentio/',
+    to: '/organization/integrations/issue-tracking/incidentio/',
+  },
+  {
+    from: '/contributing/onboarding-wizard/',
+    to: '/contributing/',
+  },
+  {
+    from: '/security-legal-pii/security/security-policy-reporting/',
+    to: '/platform-redirect/?next=/security-policy-reporting/',
+  },
 ];
 
-const redirectMap = new Map(REDIRECTS.map(r => [r.from as string, r.to]));
+const DEVELOPER_DOCS_REDIRECTS: Redirect[] = [
+  {
+    from: '/',
+    to: '/getting-started/',
+  },
+  {
+    from: '/docs-components/',
+    to: '/development/docs/',
+  },
+  {
+    from: '/docs/',
+    to: '/development/docs/',
+  },
+  {
+    from: '/inclusion/',
+    to: '/development/inclusive-language/',
+  },
+  {
+    from: '/translations/',
+    to: '/development/translations/',
+  },
+  {
+    from: '/environment/',
+    to: '/development/environment/',
+  },
+  {
+    from: '/environment/pycharm/',
+    to: '/development/environment/pycharm/',
+  },
+  {
+    from: '/environment/u2f/',
+    to: '/development/environment/u2f/',
+  },
+  {
+    from: '/testing/',
+    to: '/development/testing/',
+  },
+  {
+    from: '/philosophy/',
+    to: '/development/philosophy/',
+  },
+  {
+    from: '/commit-messages/',
+    to: '/development/commit-messages/',
+  },
+  {
+    from: '/code-review/',
+    to: '/development/code-review/',
+  },
+  {
+    from: '/workflow/',
+    to: '/development/workflow/',
+  },
+  {
+    from: '/continuous-integration/',
+    to: '/development/continuous-integration/',
+  },
+  {
+    from: '/python-dependencies/',
+    to: '/development/python-dependencies/',
+  },
+  {
+    from: '/rust/',
+    to: '/development/rust/',
+  },
+  {
+    from: '/database-migrations/',
+    to: '/development/database-migrations/',
+  },
+  {
+    from: '/testing/',
+    to: '/development/testing/',
+  },
+  {
+    from: '/analytics/',
+    to: '/development/analytics/',
+  },
+  {
+    from: '/architecture/',
+    to: '/application-architecture/',
+  },
+  {
+    from: '/sentry-vs-getsentry/',
+    to: '/application/sentry-vs-getsentry/',
+  },
+  {
+    from: '/config/',
+    to: '/application/config/',
+  },
+  {
+    from: '/issue-platform/',
+    to: '/application/issue-platform/',
+  },
+  {
+    from: '/issue-platform-detectors/',
+    to: '/application/issue-platform-detectors/',
+  },
+  {
+    from: '/feature-flags/',
+    to: '/application/feature-flags/',
+  },
+  {
+    from: '/feature-flags/flagpole/',
+    to: '/application/feature-flags/flagpole/',
+  },
+  {
+    from: '/ab-testing/',
+    to: '/application/ab-testing/',
+  },
+  {
+    from: '/options/',
+    to: '/application/options/',
+  },
+  {
+    from: '/serializers/',
+    to: '/application/serializers/',
+  },
+  {
+    from: '/grouping/',
+    to: '/application/grouping/',
+  },
+  {
+    from: '/pii/',
+    to: '/application/pii/',
+  },
+  {
+    from: '/pii/types/',
+    to: '/application/pii/types/',
+  },
+  {
+    from: '/pii/methods/',
+    to: '/application/pii/methods/',
+  },
+  {
+    from: '/pii/selectors/',
+    to: '/application/pii/selectors/',
+  },
+  {
+    from: '/transaction-clustering/',
+    to: '/application/transaction-clustering/',
+  },
+  {
+    from: '/dynamic-sampling/',
+    to: '/application/dynamic-sampling/',
+  },
+  {
+    from: '/dynamic-sampling/architecture/',
+    to: '/application/dynamic-sampling/architecture/',
+  },
+  {
+    from: '/dynamic-sampling/fidelity-and-biases/',
+    to: '/application/dynamic-sampling/fidelity-and-biases/',
+  },
+  {
+    from: '/dynamic-sampling/the-big-picture/',
+    to: '/application/dynamic-sampling/the-big-picture/',
+  },
+  {
+    from: '/feedback-architecture/',
+    to: '/application/feedback-architecture/',
+  },
+  {
+    from: '/feature-flags/options-backed-features/',
+    to: '/application/feature-flags/options-backed-features/',
+  },
+  {
+    from: '/options/',
+    to: '/backend/options/',
+  },
+  {
+    from: '/sdk/features/data-handling/',
+    to: '/sdk/expected-features/data-handling/',
+  },
+  {
+    from: '/sdk/craft-quick-start/',
+    to: '/sdk/processes/releases/',
+  },
+  {
+    from: '/sdk/metrics/',
+    to: '/sdk/telemetry/metrics/',
+  },
+  {
+    from: '/sdk/check-ins/',
+    to: '/sdk/telemetry/check-ins/',
+  },
+  {
+    from: '/sdk/profiles/',
+    to: '/sdk/telemetry/profiles/',
+  },
+  {
+    from: '/sdk/distributed-tracing/',
+    to: '/sdk/telemetry/traces/distributed-tracing/',
+  },
+  // New Sidebar structure
+  {
+    from: '/development/',
+    to: '/development-infrastructure/',
+  },
+  {
+    from: '/development/environment/',
+    to: '/development-infrastructure/environment/',
+  },
+  {
+    from: '/development/environment/ports/',
+    to: '/development-infrastructure/environment/ports/',
+  },
+  {
+    from: '/development/environment/u2f/',
+    to: '/development-infrastructure/environment/u2f/',
+  },
+  {
+    from: '/development/environment/pycharm/',
+    to: '/development-infrastructure/environment/pycharm/',
+  },
+  {
+    from: '/development/commit-messages/',
+    to: '/engineering-practices/commit-messages/',
+  },
+  {
+    from: '/development/code-review/',
+    to: '/engineering-practices/code-review/',
+  },
+  {
+    from: '/development/documentation/',
+    to: '/engineering-practices/documentation/',
+  },
+  {
+    from: '/development/workflow/',
+    to: '/development-infrastructure/workflow/',
+  },
+  {
+    from: '/development/testing/',
+    to: '/development-infrastructure/testing/',
+  },
+  {
+    from: '/development/continuous-integration/',
+    to: '/development-infrastructure/continuous-integration/',
+  },
+  {
+    from: '/development/ngrok/',
+    to: '/development-infrastructure/ngrok/',
+  },
+  {
+    from: '/development/devservices/',
+    to: '/development-infrastructure/devservices/',
+  },
+  {
+    from: '/development/rust/',
+    to: '/engineering-practices/rust/',
+  },
+  {
+    from: '/development/analytics/',
+    to: '/development-infrastructure/analytics/',
+  },
+  {
+    from: '/application/',
+    to: '/application-architecture/',
+  },
+  {
+    from: '/application/architecture/',
+    to: '/application-architecture/overview/',
+  },
+  {
+    from: '/application/dynamic-sampling/',
+    to: '/application-architecture/dynamic-sampling/',
+  },
+  {
+    from: '/application/dynamic-sampling/the-big-picture/',
+    to: '/application-architecture/dynamic-sampling/the-big-picture/',
+  },
+  {
+    from: '/application/dynamic-sampling/fidelity-and-biases/',
+    to: '/application-architecture/dynamic-sampling/fidelity-and-biases/',
+  },
+  {
+    from: '/application/dynamic-sampling/architecture/',
+    to: '/application-architecture/dynamic-sampling/architecture/',
+  },
+  {
+    from: '/application/dynamic-sampling/outcomes/',
+    to: '/application-architecture/dynamic-sampling/outcomes/',
+  },
+  {
+    from: '/application/feedback-architecture/',
+    to: '/application-architecture/feedback-architecture/',
+  },
+  {
+    from: '/application/control-silo/',
+    to: '/application-architecture/multi-region-deployment/control-silo/',
+  },
+  {
+    from: '/application/cross-region-replication/',
+    to: '/application-architecture/multi-region-deployment/cross-region-replication/',
+  },
+  {
+    from: '/application/cross-region-rpc/',
+    to: '/application-architecture/multi-region-deployment/cross-region-rpc/',
+  },
+  {
+    from: '/application/config/',
+    to: '/application-architecture/config/',
+  },
+  {
+    from: '/application-architecture/config/',
+    to: '/backend/config/',
+  },
+  {
+    from: '/application/sentry-vs-getsentry/',
+    to: '/application-architecture/sentry-vs-getsentry/',
+  },
+
+  {
+    from: '/frontend/development-server/',
+    to: '/development-infrastructure/frontend-development-server/',
+  },
+  {
+    from: '/api-server/',
+    to: '/backend/',
+  },
+  {
+    from: '/api-server/api/',
+    to: '/backend/api/',
+  },
+  {
+    from: '/api-server/api/basics/',
+    to: '/backend/api/basics/',
+  },
+  {
+    from: '/api-server/api/design/',
+    to: '/backend/api/design/',
+  },
+  {
+    from: '/api-server/api/concepts/',
+    to: '/backend/api/concepts/',
+  },
+  {
+    from: '/api-server/api/public/',
+    to: '/backend/api/public/',
+  },
+  {
+    from: '/api-server/api/checklist/',
+    to: '/backend/api/checklist/',
+  },
+  {
+    from: '/api-server/api/serializers/',
+    to: '/backend/api/serializers/',
+  },
+  {
+    to: '/development-infrastructure/backend-development-server/',
+    from: '/backend/development-server/',
+  },
+  {
+    from: '/backend/python-dependencies/',
+    to: '/development-infrastructure/python-dependencies/',
+  },
+  {
+    from: '/backend/database-migrations/',
+    to: '/backend/application-domains/database-migrations/',
+  },
+  {
+    from: '/api-server/application-domains/database-migrations/',
+    to: '/backend/application-domains/database-migrations/',
+  },
+  {
+    from: '/backend/feature-flags/',
+    to: '/backend/application-domains/feature-flags/',
+  },
+  {
+    from: '/api-server/application-domains/feature-flags/',
+    to: '/develop/application-domains/feature-flags/',
+  },
+  {
+    from: '/backend/feature-flags/flagpole/',
+    to: '/backend/application-domains/feature-flags/flagpole/',
+  },
+  {
+    from: '/api-server/application-domains/feature-flags/flagpole/',
+    to: '/develop/application-domains/feature-flags/flagpole/',
+  },
+  {
+    from: '/backend/feature-flags/options-backed-features/',
+    to: '/backend/application-domains/feature-flags/options-backed-features/',
+  },
+  {
+    from: '/api-server/application-domains/feature-flags/options-backed-features/',
+    to: '/develop/application-domains/feature-flags/options-backed-features/',
+  },
+  {
+    from: '/backend/options/',
+    to: '/backend/application-domains/options/',
+  },
+  {
+    from: '/api-server/application-domains/options/',
+    to: '/develop/application-domains/options/',
+  },
+  {
+    from: '/backend/transaction-clustering/',
+    to: '/backend/application-domains/transaction-clustering/',
+  },
+  {
+    from: '/api-server/application-domains/transaction-clustering/',
+    to: '/develop/application-domains/transaction-clustering/',
+  },
+  {
+    from: '/backend/grouping/',
+    to: '/backend/application-domains/grouping/',
+  },
+  {
+    from: '/api-server/application-domains/grouping/',
+    to: '/develop/application-domains/grouping/',
+  },
+  {
+    from: '/backend/outboxes/',
+    to: '/backend/application-domains/outboxes/',
+  },
+  {
+    from: '/api-server/application-domains/outboxes/',
+    to: '/develop/application-domains/outboxes/',
+  },
+  {
+    from: '/backend/issue-platform-detectors/',
+    to: '/backend/issue-platform/writing-detectors/',
+  },
+  {
+    from: '/api-server/issue-platform/writing-detectors/',
+    to: '/develop/issue-platform/writing-detectors/',
+  },
+  {
+    from: '/api-server/issue-platform/',
+    to: '/develop/issue-platform/',
+  },
+  {
+    from: '/backend/queue/',
+    to: '/backend/application-domains/asynchronous-workers/',
+  },
+  {
+    from: '/api-server/application-domains/asynchronous-workers/',
+    to: '/develop/application-domains/asynchronous-workers/',
+  },
+  {
+    from: '/backend/email/',
+    to: '/backend/application-domains/email/',
+  },
+  {
+    from: '/api-server/application-domains/email/',
+    to: '/develop/application-domains/email/',
+  },
+  {
+    from: '/backend/kafka/',
+    to: '/backend/application-domains/kafka/',
+  },
+  {
+    from: '/api-server/application-domains/kafka/',
+    to: '/develop/application-domains/kafka/',
+  },
+  {
+    from: '/backend/metrics/',
+    to: '/backend/application-domains/metrics/',
+  },
+  {
+    from: '/api-server/application-domains/metrics/',
+    to: '/develop/application-domains/metrics/',
+  },
+  {
+    from: '/backend/nodestore/',
+    to: '/backend/application-domains/nodestore/',
+  },
+  {
+    from: '/api-server/application-domains/nodestore/',
+    to: '/develop/application-domains/nodestore/',
+  },
+  {
+    from: '/backend/digests/',
+    to: '/backend/application-domains/digests/',
+  },
+  {
+    from: '/api-server/application-domains/digests/',
+    to: '/develop/application-domains/digests/',
+  },
+  {
+    from: '/backend/quotas/',
+    to: '/backend/application-domains/quotas/',
+  },
+  {
+    from: '/api-server/application-domains/quotas/',
+    to: '/develop/application-domains/quotas/',
+  },
+  {
+    from: '/backend/tsdb/',
+    to: '/backend/application-domains/tsdb/',
+  },
+  {
+    from: '/api-server/application-domains/tsdb/',
+    to: '/develop/application-domains/tsdb/',
+  },
+  {
+    from: '/backend/pii/',
+    to: '/backend/application-domains/pii/',
+  },
+  {
+    from: '/api-server/application-domains/pii/',
+    to: '/develop/application-domains/pii/',
+  },
+  {
+    from: '/backend/pii/methods/',
+    to: '/backend/application-domains/pii/methods/',
+  },
+  {
+    from: '/api-server/application-domains/pii/methods/',
+    to: '/develop/application-domains/pii/methods/',
+  },
+  {
+    from: '/backend/pii/types/',
+    to: '/backend/application-domains/pii/types/',
+  },
+  {
+    from: '/api-server/application-domains/pii/types/',
+    to: '/develop/application-domains/pii/types/',
+  },
+  {
+    from: '/backend/pii/selectors/',
+    to: '/backend/application-domains/pii/selectors/',
+  },
+  {
+    from: '/api-server/application-domains/pii/selectors/',
+    to: '/develop/application-domains/pii/selectors/',
+  },
+  {
+    from: '/backend/buffers/',
+    to: '/backend/application-domains/write-buffers/',
+  },
+  {
+    from: '/api-server/application-domains/write-buffers/',
+    to: '/develop/application-domains/write-buffers/',
+  },
+  {
+    from: '/backend/translations/',
+    to: '/backend/application-domains/translations/',
+  },
+  {
+    from: '/api-server/application-domains/translations/',
+    to: '/develop/application-domains/translations/',
+  },
+  {
+    from: '/backend/ab-testing/',
+    to: '/backend/application-domains/ab-testing/',
+  },
+  {
+    from: '/api-server/application-domains/ab-testing/',
+    to: '/develop/application-domains/ab-testing/',
+  },
+  /* Ingestion section rework */
+  {
+    from: '/relay/',
+    to: '/ingestion/relay/',
+  },
+  {
+    from: '/relay/projectconfig-versioning/',
+    to: '/ingestion/relay/projectconfig-versioning/',
+  },
+  {
+    from: '/relay/transaction-span-ratelimits/',
+    to: '/ingestion/relay/transaction-span-ratelimits/',
+  },
+  {
+    from: '/relay/relay-best-practices/',
+    to: '/ingestion/relay/relay-best-practices/',
+  },
+];
+
+const redirectMap = new Map(
+  (isDeveloperDocs ? DEVELOPER_DOCS_REDIRECTS : USER_DOCS_REDIRECTS).map(r => [
+    r.from as string,
+    r.to,
+  ])
+);

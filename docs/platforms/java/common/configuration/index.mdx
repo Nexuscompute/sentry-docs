@@ -10,7 +10,6 @@ The DSN is the first and most important thing to configure because it tells the 
 
 In a properties file on your filesystem or classpath (defaults to `sentry.properties`):
 
-<SignInNote />
 
 ```text {tabTitle:Properties File} {filename:sentry.properties}
 dsn=___PUBLIC_DSN___
@@ -30,7 +29,6 @@ SENTRY_DSN=___PUBLIC_DSN___ java -jar app.jar
 
 In code:
 
-<SignInNote />
 
 ```java {tabTitle:Java}
 import io.sentry.Sentry;
@@ -267,18 +265,18 @@ sentry.traces-sample-rate=0.2
 
 ### Tracing Origins
 
-To set tracing origins, use the `tracing-origins` option:
+To set tracing origins, use the `trace-propagation-targets` option:
 
 ```properties {tabTitle:sentry.properties}
-tracing-origins=localhost,^(http|https)://api\\..*$
+trace-propagation-targets=localhost,^(http|https)://api\\..*$
 ```
 
 ```properties {tabTitle:environment variable}
-SENTRY_TRACING_ORIGINS=localhost,^(http|https)://api\\..*$
+SENTRY_TRACE_PROPAGATION_TARGETS=localhost,^(http|https)://api\\..*$
 ```
 
 ```properties {tabTitle:system property}
-sentry.tracing-origins=localhost,^(http|https)://api\\..*$
+sentry.trace-propagation-targets=localhost,^(http|https)://api\\..*$
 ```
 
 ### Debug

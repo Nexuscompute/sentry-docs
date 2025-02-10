@@ -4,7 +4,7 @@ sidebar_order: 10
 description: "Learn what transactions are captured after tracing is enabled."
 ---
 
-<Note>
+<Alert>
 
 Once you <PlatformLink to="/tracing/">set up tracing</PlatformLink>, the SDK enables the following features by default:
 
@@ -16,7 +16,7 @@ Once you <PlatformLink to="/tracing/">set up tracing</PlatformLink>, the SDK ena
 - Core Data Tracing
 - User Interaction Tracing
 
-</Note>
+</Alert>
 
 ## UIViewController Tracing
 
@@ -29,9 +29,16 @@ The SDK creates spans to provide insight into the time consumed by each of the m
 
 ![`UIViewController` Transaction](./img/ui-view-controller-transaction.png)
 
+### Nested View Controllers
+
+The SDK sets up a parent-child relationship for nested UIViewControllers, starting with the first UIViewController that your app loads. If there's no active transaction on the scope, the SDK will start a new UIViewController transaction and bind it to the scope unless there's a [user interaction](#user-interaction-tracing) transaction already on the scope, in which case this will be closed and removed first.
+
+While a UIViewController transaction is active on the scope, the SDK will add any new UIViewController spans as child spans of that active transaction. This creates a unified view of all UIViewControllers on a screen in a single transaction.
+
+If another transaction is already bound to the scope (if it's been set manually, for example) the SDK won't be able to bind a new UIViewController transaction to the scope. This means that the new transaction will work, but won’t capture other auto-generated spans, like HTTP, file IO, or Core Data, which can only be added to transactions that are bound to the scope.
+
 To disable the `UIViewController` Tracing:
 
-<SignInNote />
 
 ```swift {tabTitle:Swift}
 import Sentry
@@ -58,7 +65,32 @@ SentrySDK.start { options in
 }];
 ```
 
+You can deactivate tracing for specific UIViewControllers by configuring <PlatformLink to="/configuration/swizzling#skip-swizzling-for-specific-classes">`swizzleClassNameExcludes`</PlatformLink>:
+
+
+```swift {tabTitle:Swift}
+import Sentry
+
+SentrySDK.start { options in
+    options.swizzleClassNameExcludes = [
+      "MyUIViewController",
+    ]
+}
+```
+
+```objc {tabTitle:Objective-C}
+@import Sentry;
+
+[SentrySDK startWithConfigureOptions:^(SentryOptions *options) {
+    options.swizzleClassNameExcludes = [NSSet setWithObjects:
+      @"MyUIViewController",
+      nil
+    ];
+}];
+```
+
 [UIViewController]: https://developer.apple.com/documentation/uikit/uiviewcontroller
+
 
 ## App Start Tracing
 
@@ -109,7 +141,6 @@ You can filter for different app start types in [Discover](/product/explore/disc
 
 To enable prewarmed app start tracing:
 
-<SignInNote />
 
 ```swift {tabTitle:Swift}
 import Sentry
@@ -147,7 +178,6 @@ Network Tracking is enabled by default once you <PlatformLink to="/tracing/">set
 
 To disable the HTTP instrumentation:
 
-<SignInNote />
 
 ```swift {tabTitle:Swift}
 import Sentry
@@ -177,7 +207,6 @@ Sentry adds an extra header with the trace id in the outgoing HTTP requests to c
 You can set the `tracePropagationTarget` option to filter which requests Sentry adds the extra header to.
 For example, to ensure that only your app backend will receive the trace id.
 
-<SignInNote />
 
 ```swift {tabTitle:Swift}
 import Sentry
@@ -207,7 +236,6 @@ The Sentry SDK adds spans for file I/O operations to ongoing transactions bound 
 
 Since 8.0.0, this feature has been enabled by default. To disable it:
 
-<SignInNote />
 
 ```swift {tabTitle:Swift}
 import Sentry
@@ -243,7 +271,6 @@ SentrySDK.start { options in
 The Sentry SDK adds spans for Core Data operations to ongoing transactions bound to the scope. Currently, the SDK supports fetch and save operations with [NSManagedObjectContext](https://developer.apple.com/documentation/coredata/nsmanagedobjectcontext).
 Since 8.0.0, this feature has been enabled by default. To disable it:
 
-<SignInNote />
 
 ```swift {tabTitle:Swift}
 import Sentry
@@ -273,7 +300,6 @@ SentrySDK.start { options in
 
 User interaction tracing, once enabled, captures transactions for clicks. This feature is unavailable for SwiftUI. Since 8.0.0, this feature has been enabled by default. To disable it:
 
-<SignInNote />
 
 ```swift {tabTitle:Swift}
 import Sentry
@@ -295,11 +321,11 @@ SentrySDK.start { options in
 
 The SDK composes the transaction name out of the host `UIViewController` and the method that the `UIView` is calling; for example, `YourApp_LoginUIViewController.loginButton`. The SDK sets the transaction operation to `ui.action`. If the SDK detects the interaction's origin was a click, it adds `click` as a suffix to the operation. The transaction finishes automatically after it reaches the specified [idleTimeout](/platforms/android/configuration/options/#idle-timeout) and all of its child spans are finished. The `idleTimeoout` defaults to `3000` milliseconds (three seconds).
 
-<Note>
+<Alert>
 
 If the UI transaction has idled but didn't have any child spans added, the SDK will drop it.
 
-</Note>
+</Alert>
 
 The SDK binds user interaction transactions to the `Scope` automatically if there's no other transaction set. Because of that, you can create spans using custom instrumentation, and those spans will be automatically associated with the running UI transaction.
 
@@ -329,35 +355,35 @@ When the user interaction transaction is not finished yet, but the user makes a 
 
 ## Time to Initial Display
 
-_(New in version 8.4.0)_
+<Alert>
 
-By adding a span for a view controller when it's loaded, time to initial display (TTID) provides insight into how long it takes for your view controller to launch and draw its first UI frame. The SDK sets the span operation to `ui.load.initial-display` and the span description to the view controllers's name, followed by `initial display` - for example, `MainViewController initial display`.
+This feature only works for UIViewControllers and not for SwiftUI.
 
-The span starts when the view of a view controller is loaded, and there is no other view controller transaction happening at the moment.
+</Alert>
 
-The span finishes after the view appeared on the screen.
+By adding a span for a view controller when it's loaded, time to initial display (TTID) provides insight into how long it takes for your view controller to launch and draw its first UI frame. The SDK sets the span operation to `ui.load.initial-display` and the span description to the view controller's name, followed by `initial display` - for example, `MainViewController initial display`.
 
-The following chart shows how time to initial display (TTID) and [time to full display (TTFD)](#time-to-full-display) correlate to transitions between activities:
+The span starts when the view of a view controller is loaded, and there is no other view controller transaction happening at the moment. The span finishes after the view appeared on the screen. The following chart shows how time to initial display (TTID) and [time to full display (TTFD)](#time-to-full-display) correlate to transitions between activities:
 
 ![](./img/ttid-ttfd-concept.png)
 
+Since Cocoa SDK version 8.33.0, the SDK doesn't create time to initial display (TTID) and [time to full display (TTFD)](#time-to-full-display) spans for UIViewControllers presented in the background because the logic requires UI frames to be drawn.
+
 ## Time to Full Display
 
-<Note>
+<Alert>
 
-This feature is experimental and may have bugs.
+This feature only works for UIViewControllers and not for SwiftUI.
 
-</Note>
+</Alert>
 
-_(New in version 8.4.0)_
+By adding a span for a view controller when it's loaded, time to full display (TTFD) provides insight into how long it takes your view controller to launch and load all of its content. The span starts when the view of a view controller is loaded, and there is no other view controller transaction happening at the moment. The SDK sets the span operation to `ui.load.full-display` and the span description to the view controllers' name, followed by `full display` - for example, `MainActivity full display`.
 
-By adding a span for a view controller when it's loaded, time to full display (TTFD) provides insight into how long it takes your view controller to launch and load all of its content. The SDK sets the span operation to `ui.load.full-display` and the span description to the view controllers' name, followed by `full display` - for example, `MainActivity full display`.
+Since Cocoa SDK version 8.33.0, the SDK doesn't create [time to initial display (TTID)](#time-to-initial-display) and time to full display (TTFD) spans for UIViewControllers presented in the background, because the logic requires UI frames to be drawn.
 
-The span starts when the view of a view controller is loaded, and there is no other view controller transaction happening at the moment.
 
 _Time to full display is disabled by default, but you can enable it by setting:_
 
-<SignInNote />
 
 ```swift {tabTitle:Swift}
 import Sentry
@@ -397,13 +423,7 @@ If a call to `reportFullyDisplayed()` happens before the view controller appears
 
 ## Performance V2
 
-<Note>
-
-This feature is experimental and may have bugs.
-
-</Note>
-
-_(New in version 8.18.0)_
+_(New in version 8.18.0), stable since 8.42.0._
 
 We're working to update our **Performance** product offering in order to be able to provide better insights and highlight specific actions you can take to improve your mobile app's overall performance. The `performanceV2` option changes the following behavior:
 
@@ -415,7 +435,6 @@ This change will be the default in the next major version.
 
 You can opt out of all automatic instrumentations using the options:
 
-<SignInNote />
 
 ```swift {tabTitle:Swift}
 import Sentry

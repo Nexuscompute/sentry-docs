@@ -14,21 +14,44 @@ Sentry makes it possible to render a JSON representation of the view hierarchy o
 
 This feature only applies to SDKs with a user interface, such as the ones for mobile and desktop applications. In some environments like native iOS, rendering the view hierarchy requires the UI thread and in the event of a crash, that might not be available. Another example where the view hierarchy might not be available is when the event happens before the screen starts to load. So inherently, this feature is a best effort solution.
 
-<Note>
+<Alert>
 App hang events will not have view hierarchy because the main thread is blocked and Sentry can't interact with UI elements in a background view.
-</Note>
+</Alert>
 
-<Note>
+<Alert>
 
 Deobfuscation for view hierarchies is fully supported for native SDKs, and React Native, but is currently not supported for Flutter. View hierarchies are not supported for SwiftUI.
 
-</Note>
+</Alert>
 
 ## Enabling View Hierarchy Attachments
 
 View hierarchy debugging is an opt-in feature. You can enable it as shown below:
 
 <PlatformContent includePath="enriching-events/attach-viewhierarchy" />
+
+## Privacy In View Hierarchy Attachments
+
+Sentry doesn't collect any user information (such as UILabel and UITextView text) with the view hierarchy attachment, which only contains structure and properties.
+
+If you're using the view's `accessibilityIdentifier` property with personal information, make sure to disable `accessibilityIdentifier` reporting like in the example below:
+
+```swift {tabTitle:Swift}
+import Sentry
+SentrySDK.start { options in
+  options.attachViewHierarchy = true
+  options.reportAccessibilityIdentifier = false
+}
+```
+
+```objc {tabTitle:Objective-C}
+@import Sentry;
+[SentrySDK startWithConfigureOptions:^(SentryOptions *options) {
+   options.attachViewHierarchy = YES;
+   options.reportAccessibilityIdentifier = NO;
+}];
+```
+
 
 ## Viewing View Hierarchy Attachments
 

@@ -1,8 +1,7 @@
-<SignInNote />
-
 ```php
 \Sentry\init([
-    'dsn' => '___PUBLIC_DSN___',
     'environment' => 'production',
 ]);
 ```
+
+By default, the SDK will try to read this value from the `SENTRY_ENVIRONMENT` environment variable.

@@ -19,7 +19,6 @@ pip install --upgrade 'sentry-sdk'
 
 Add `GnuBacktraceIntegration()` to your `integrations` list:
 
-<SignInNote />
 
 ```python
 import sentry_sdk
@@ -27,6 +26,9 @@ from sentry_sdk.integrations.gnu_backtrace import GnuBacktraceIntegration
 
 sentry_sdk.init(
     dsn="___PUBLIC_DSN___",
+    # Add data like request headers and IP for users, if applicable;
+    # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
+    send_default_pii=True,
     integrations=[
         GnuBacktraceIntegration(),
     ],

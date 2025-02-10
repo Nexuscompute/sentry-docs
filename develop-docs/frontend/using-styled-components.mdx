@@ -1,5 +1,6 @@
 ---
 title: Using Styled Components
+sidebar_order: 30
 ---
 
 To apply styles to HTML, we use a CSS-in-JS library called [Emotion](https://emotion.sh/). This allows us to define styles in the same file where the component is defined and used. Styles are scoped to avoid global selectors and having to manually specify classnames as strings. You can also leverage the `theme` object to reference common values and utilities.
@@ -8,11 +9,20 @@ The best styles are the ones you don’t write - whenever possible use existing 
 
 ## Basics
 
-To use Style Components pull in `styled` and apply your CSS. For consistent spacing you should also use `space()`:
+To use Style Components, import `styled` from `@emotion/styled` and apply custom CSS. For consistent spacing you should also use `space()`:
 
 ```tsx
 import styled from '@emotion/styled';
 import {space} from 'sentry/styles/space';
+
+export default ExampleComponent() {
+  return (
+    <SideBySide>
+      <p>a number: <Numeric>1</Numeric></p>
+      <p>and another: <Numeric>2</Numeric></p>
+    </SideBySide>
+  )
+}
 
 const Numeric = styled('span')`
   font-variant-numeric: tabular-nums;
@@ -25,14 +35,6 @@ const SideBySide = styled('div')`
   align-items: flex-start;
 `;
 
-export default ExampleComponent() {
-  return (
-    <SideBySide>
-      <p>a number: <Numeric>1</Numeric></p>
-      <p>and another: <Numeric>2</Numeric></p>
-    </SideBySide>
-  )
-}
 ```
 
 ## Theme
@@ -56,7 +58,7 @@ const SomeComponent = styled('div')`
 
 ## Dynamic Properties
 
-<Alert level="info">
+<Alert>
   Most of the time dynamic properties are not needed!
 </Alert>
 
@@ -94,7 +96,7 @@ const Label = styled('label')`
   &[data-is-error="true"] {
     color: ${p => p.theme.error400};
   }
-  
+
   &:disabled {
     color: ${p => p.theme.gray200};
   }
@@ -110,6 +112,7 @@ The `style` and `css` attributes can be used, but the values of `style` are not 
 ```tsx
 import styled from '@emotion/styled';
 import {css} from '@emotion/react';
+import {space} from 'sentry/styles/space';
 
 // ✅ Don't be afraid of inline styles for one-off values
 const Grid = styled('div')`
